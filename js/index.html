@@ -1,0 +1,20 @@
+<html>
+<script src="interpreter/AstEvaluator.js"></script>
+<script src="interpreter/AstNode.js"></script>
+<script src="interpreter/Interpreter.js"></script>
+<script src="interpreter/OperatorDefinition.js"></script>
+<script src="interpreter/ShuntingYard.js"></script>
+<script src="interpreter/test.js"></script>
+<script>
+    function go() {
+        document.getElementById("result").innerHTML = Interpreter_eval(document.getElementById("expression").value, null);
+    }
+</script>
+<button type="button" onclick="main()">测试</button>
+<br>
+<br>
+<input type="text" id="expression" />
+<p id="result"></p>
+<button type="button" onclick="go()">求值</button>
+
+</html>
