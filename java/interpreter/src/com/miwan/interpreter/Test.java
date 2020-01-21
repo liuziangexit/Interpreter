@@ -6,6 +6,7 @@ import com.miwan.interpreter.syntax.AstNode;
 import com.miwan.interpreter.syntax.ShuntingYard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class Test {
 
@@ -23,6 +24,30 @@ public class Test {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
+
+		//测试三元运算符
+		//普通情形
+		/*if (0 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("0?1:0")))).intValue())
+			throw new RuntimeException();
+		if (1 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("1?1:0")))).intValue())
+			throw new RuntimeException();
+		if (1 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("-1?1:0")))).intValue())
+			throw new RuntimeException();
+		if (4 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("2221?pow(2,2):0")))).intValue())
+			throw new RuntimeException();*/
+		//问号运算参数中的嵌套情形
+		Collection<AstNode> compile = ShuntingYard.compile(Scanner.scan("true ? 0 : 1 ? 2 : 3"));
+		if (0 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("true ? 0 : 1 ? 2 : 3")))).intValue())
+			throw new RuntimeException();
+		if (1 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("true?1:0?true:false?1:0")))).intValue())
+			throw new RuntimeException();
+		//冒号运算参数中的嵌套情形
+		if (4 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("2221?pow(2,2):0")))).intValue())
+			throw new RuntimeException();
+		//和括号一起测一下
+		if (4 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("2221?pow(2,2):0")))).intValue())
+			throw new RuntimeException();
+
 
 		for (int i = 0; i < 1; i++) {
 			// 基本的表达式解析测试
@@ -127,6 +152,7 @@ public class Test {
 				throw new RuntimeException();
 			if (4 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("if(2221,pow(2,2),0)")))).intValue())
 				throw new RuntimeException();
+
 			// 测试隐式转型
 			if (!String.valueOf(AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("round(10.5)+2.8"))))
 					.equals(String.valueOf(13.8)))

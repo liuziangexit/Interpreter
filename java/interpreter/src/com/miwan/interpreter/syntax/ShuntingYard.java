@@ -88,14 +88,14 @@ public class ShuntingYard {
 			//包括运算符优先级的处理
 			if (currentToken.kind.is(TokenFlag.Operator)//
 					&& OperatorDefinition.operators.containsKey(currentToken.text)) {
+				//运算符优先级决议
 				//只要存在另一个记为previousOp的运算符位于栈的顶端，并且...
 				while (!operatorStack.empty()//
 						&& (operatorStack.peek().kind.is(TokenFlag.Operator) || OperatorDefinition.operators.containsKey(currentToken.text))) {
 					OperatorDefinition.OperatorInfo previousOpInfo = OperatorDefinition.operators
 							.get(operatorStack.peek().text);
 					if (previousOpInfo == null
-							//...currentChar所代表之运算符的优先级要小于或者等于previousOp的优先级，或者...
-							//注意，precedence这个值越小说明优先级越大
+							//...currentChar所代表之运算符的优先级要小于previousOp的优先级，或者...
 							|| OperatorDefinition.operators.get(currentToken.text).precedence < previousOpInfo.precedence
 							//...currentChar和previousOp不全是^(语法中将^符号视作迭代幂次，因此是右结合的，不参与此优先级决议)...
 							|| (currentToken.text.equals("^") && operatorStack.peek().text.equals("^")))

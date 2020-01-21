@@ -171,7 +171,7 @@ public class OperatorDefinition {
 			this.precedence = arg0;
 		}
 
-		public final byte precedence;//优先级，0级最高，127最低
+		public final byte precedence;//优先级，数字越小优先级越高
 	}
 
 	@FunctionalInterface
