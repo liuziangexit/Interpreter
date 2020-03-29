@@ -1,5 +1,6 @@
 package com.miwan.interpreter.syntax;
 
+import com.miwan.interpreter.lexical.Lexeme;
 import com.miwan.interpreter.lexical.Token;
 import com.miwan.interpreter.lexical.TokenFlag;
 import com.miwan.interpreter.lexical.TokenKind;
@@ -22,43 +23,43 @@ public class ShuntingYard {
 
 	// 接口↓
 
-	//从Token Stream建立AST
-	public static Collection<AstNode> compile(final List<Token> tokens) {
+	//从词序列建立AST
+	public static Collection<AstNode> compile(final List<Lexeme> lexemes) {
 		final ArrayList<AstNode> reversedPolishExpression = new ArrayList<>();
 
-		final Stack<Token> operatorStack = new Stack<>();
+		final Stack<Lexeme> operatorStack = new Stack<>();
 
-		for (int i = 0; i < tokens.size(); i++) {
-			Token currentToken = tokens.get(i);
+		for (int i = 0; i < lexemes.size(); i++) {
+			Lexeme currentLex = lexemes.get(i);
 
 			//对于标识符(Identifier)
-			if (currentToken.kind == TokenKind.Identifier) {
-				if (OperatorDefinition.functions.containsKey(currentToken.text)) {
+			if (currentLex.kind == TokenKind.Identifier) {
+				if (OperatorDefinition.functions.containsKey(currentLex.text)) {
 					//函数调用
-					operatorStack.push(currentToken);
+					operatorStack.push(currentLex);
 				} else {
 					//变量
 					reversedPolishExpression.add(//
-							new AstNode(AstNode.NodeType.VARIABLE_NAME, currentToken.text));
+							new AstNode(AstNode.NodeType.VARIABLE_NAME, currentLex.text));
 				}
 				continue;
 			}
 
 			//对于数字
-			if (currentToken.kind == TokenKind.Number) {
-				if (currentToken.text.contains(".")) {
+			if (currentLex.kind == TokenKind.Number) {
+				if (currentLex.text.contains(".")) {
 					reversedPolishExpression.add(//
-							new AstNode(Double.parseDouble(currentToken.text)));
+							new AstNode(Double.parseDouble(currentLex.text)));
 				} else {
 					reversedPolishExpression.add(//
-							new AstNode(Integer.parseInt(currentToken.text)));
+							new AstNode(Integer.parseInt(currentLex.text)));
 				}
 				continue;
 			}
 
 			//对于boolean字面量
-			if (currentToken.kind.is(TokenFlag.BooleanLiteral)) {
-				if (currentToken.kind == TokenKind.True) {
+			if (currentLex.kind.is(TokenFlag.BooleanLiteral)) {
+				if (currentLex.kind == TokenKind.True) {
 					reversedPolishExpression.add(new AstNode(true));
 				} else {
 					reversedPolishExpression.add(new AstNode(false));
@@ -67,58 +68,58 @@ public class ShuntingYard {
 			}
 
 			// 处理负号（而不解释为减号）
-			if (currentToken.kind == TokenKind.Minus) {
+			if (currentLex.kind == TokenKind.Minus) {
 				boolean isNegativeSymbol = true;
 				if (i != 0) {
 					// 只有“-”符号的前一个字符是“)”或数字或变量的时候，“-”符号才被视作减号
-					Token previousToken = tokens.get(i - 1);
-					if (previousToken.kind == TokenKind.RParen || previousToken.kind == TokenKind.Number || previousToken.kind == TokenKind.Identifier)
+					Lexeme previousLex = lexemes.get(i - 1);
+					if (previousLex.kind == TokenKind.RParen || previousLex.kind == TokenKind.Number || previousLex.kind == TokenKind.Identifier)
 						isNegativeSymbol = false;// 是减号
 				}
 				if (isNegativeSymbol) {
 					// 若为负号...则处理为-1*n
 					// 使用美元符作为乘号是为了让这个乘法具有最高的优先级(见美元符在OperatorDefinition.operators中的定义)
 					reversedPolishExpression.add(new AstNode(-1));
-					operatorStack.push(Token.createToken("$", TokenKind.USD));
+					operatorStack.push(Token.createLexeme("$", TokenKind.USD));
 					continue;
 				}
 			}
 
 			//处理运算符
 			//包括运算符优先级的处理
-			if (currentToken.kind.is(TokenFlag.Operator)//
-					&& OperatorDefinition.operators.containsKey(currentToken.text)) {
+			if (currentLex.kind.is(TokenFlag.Operator)//
+					&& OperatorDefinition.operators.containsKey(currentLex.text)) {
 				//运算符优先级决议
 				//只要存在另一个记为previousOp的运算符位于栈的顶端，并且...
 				while (!operatorStack.empty()//
-						&& (operatorStack.peek().kind.is(TokenFlag.Operator) || OperatorDefinition.operators.containsKey(currentToken.text))) {
+						&& (operatorStack.peek().kind.is(TokenFlag.Operator) || OperatorDefinition.operators.containsKey(currentLex.text))) {
 					OperatorDefinition.OperatorInfo previousOpInfo = OperatorDefinition.operators
 							.get(operatorStack.peek().text);
 					if (previousOpInfo == null
 							//...currentChar所代表之运算符的优先级要小于previousOp的优先级，或者...
-							|| OperatorDefinition.operators.get(currentToken.text).precedence < previousOpInfo.precedence
+							|| OperatorDefinition.operators.get(currentLex.text).precedence < previousOpInfo.precedence
 							//...currentChar和previousOp不全是^(语法中将^符号视作迭代幂次，因此是右结合的，不参与此优先级决议)...
-							|| (currentToken.text.equals("^") && operatorStack.peek().text.equals("^")))
+							|| (currentLex.text.equals("^") && operatorStack.peek().text.equals("^")))
 						break;
 					//...那么，将previousOp从栈的顶端弹出并且放入输出队列中(循环直到上述条件不满足为止)
 					reversedPolishExpression.add(new AstNode(AstNode.NodeType.OPERATOR, convertUsdOperator(operatorStack.pop())));
 				}
-				operatorStack.push(currentToken);
+				operatorStack.push(currentLex);
 				continue;
 			}
 
 			// 处理函数参数表中的逗号
-			if (currentToken.kind == TokenKind.Comma) {
+			if (currentLex.kind == TokenKind.Comma) {
 				popStack(reversedPolishExpression, operatorStack, "(", false);
 				continue;
 			}
 
 			// 处理括号(优先级相关)
-			if (currentToken.kind == TokenKind.LParen) {
-				operatorStack.push(currentToken);
+			if (currentLex.kind == TokenKind.LParen) {
+				operatorStack.push(currentLex);
 				continue;
 			}
-			if (currentToken.kind == TokenKind.RParen) {
+			if (currentLex.kind == TokenKind.RParen) {
 				popStack(reversedPolishExpression, operatorStack, "(", true);
 				if (!operatorStack.isEmpty() && operatorStack.peek().kind == TokenKind.Identifier)
 					reversedPolishExpression.add(new AstNode(AstNode.NodeType.FUNCTION_CALL, operatorStack.pop().text));
@@ -132,13 +133,13 @@ public class ShuntingYard {
 
 	// 实现相关↓
 
-	static private String convertUsdOperator(Token op) {
+	static private String convertUsdOperator(Lexeme op) {
 		if (op.kind == TokenKind.USD)
 			return "*";
 		return op.text;
 	}
 
-	static private void popStack(List<AstNode> resultSequence, Stack<Token> operatorStack, String stopFlag,
+	static private void popStack(List<AstNode> resultSequence, Stack<Lexeme> operatorStack, String stopFlag,
 								 boolean shouldPopFlag) {
 		while (!operatorStack.empty()) {
 			if (stopFlag != null && operatorStack.peek().text.equals(stopFlag)) {
@@ -146,7 +147,7 @@ public class ShuntingYard {
 					operatorStack.pop();
 				break;
 			}
-			Token t = operatorStack.pop();
+			Lexeme t = operatorStack.pop();
 			if (t.kind.is(TokenFlag.Operator) || t.kind == TokenKind.USD) {
 				resultSequence.add(new AstNode(AstNode.NodeType.OPERATOR, convertUsdOperator(t)));
 			} else {

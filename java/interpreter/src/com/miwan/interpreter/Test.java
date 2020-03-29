@@ -3,10 +3,12 @@ package com.miwan.interpreter;
 import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.runtime.AstEvaluator;
 import com.miwan.interpreter.syntax.AstNode;
+import com.miwan.interpreter.syntax.Node;
+import com.miwan.interpreter.syntax.Parser;
 import com.miwan.interpreter.syntax.ShuntingYard;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 public class Test {
 
@@ -25,6 +27,13 @@ public class Test {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
+		Node parseParen = Parser.parse(Scanner.scan("(())"));
+		Node parseCall = Parser.parse(Scanner.scan("func(a,func2(),c)"));
+		Node parse = Parser.parse(Scanner.scan("1+(2+3)"));
+		Node parse2 = Parser.parse(Scanner.scan("1*(2+3)"));
+		Node parse3 = Parser.parse(Scanner.scan("1+2*3"));
+		System.out.println("");
+
 		//测试三元运算符
 		//普通情形
 		/*if (0 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("0?1:0")))).intValue())
@@ -34,9 +43,8 @@ public class Test {
 		if (1 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("-1?1:0")))).intValue())
 			throw new RuntimeException();
 		if (4 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("2221?pow(2,2):0")))).intValue())
-			throw new RuntimeException();*/
+			throw new RuntimeException();
 		//问号运算参数中的嵌套情形
-		Collection<AstNode> compile = ShuntingYard.compile(Scanner.scan("true ? 0 : 1 ? 2 : 3"));
 		if (0 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("true ? 0 : 1 ? 2 : 3")))).intValue())
 			throw new RuntimeException();
 		if (1 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("true?1:0?true:false?1:0")))).intValue())
@@ -46,7 +54,7 @@ public class Test {
 			throw new RuntimeException();
 		//和括号一起测一下
 		if (4 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("2221?pow(2,2):0")))).intValue())
-			throw new RuntimeException();
+			throw new RuntimeException();*/
 
 
 		for (int i = 0; i < 1; i++) {

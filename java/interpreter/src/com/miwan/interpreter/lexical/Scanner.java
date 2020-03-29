@@ -14,11 +14,11 @@ import java.util.function.Consumer;
 
 public class Scanner {
 
-	static public List<Token> scan(final String src) {
-		final List<Token> result = new ArrayList<>();
+	static public List<Lexeme> scan(final String src) {
+		final List<Lexeme> result = new ArrayList<>();
 		final StringBuilder currentLex = new StringBuilder();
 		final Consumer<TokenKind> newToken = kind -> {
-			result.add(Token.createToken(currentLex.toString(), kind));
+			result.add(Token.createLexeme(currentLex.toString(), kind));
 			currentLex.setLength(0);
 		};
 

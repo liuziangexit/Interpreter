@@ -13,16 +13,16 @@ import java.util.HashMap;
 public class Token {
 
 	//符号表
-	static private HashMap<String, Token> pool = new HashMap<>();
+	static private HashMap<String, Lexeme> pool = new HashMap<>();
 
 	//创建token
-	static public Token createToken(String text, TokenKind kind) {
-		Token find = pool.get(text);
+	static public Lexeme createLexeme(String text, TokenKind kind) {
+		Lexeme find = pool.get(text);
 		if (find != null)
 			return find;
-		Token newToken = new Token(text, kind);
-		pool.put(text, newToken);
-		return newToken;
+		Lexeme newLex = new Lexeme(text, kind);
+		pool.put(text, newLex);
+		return newLex;
 	}
 
 	private Token(String text, TokenKind kind) {

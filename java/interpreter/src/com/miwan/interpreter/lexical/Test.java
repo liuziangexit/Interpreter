@@ -6,7 +6,7 @@ public class Test {
 
 	public static void main(String[] args) {
 		//Number
-		List<Token> scan = Scanner.scan("123");
+		List<Lexeme> scan = Scanner.scan("123");
 		scan = Scanner.scan("123.1");
 		scan = Scanner.scan("1.1");
 		scan = Scanner.scan("1");

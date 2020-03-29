@@ -1,8 +1,11 @@
 package com.miwan.interpreter.syntax;
 
-import com.miwan.interpreter.lexical.Token;
+import com.miwan.interpreter.Pointer;
+import com.miwan.interpreter.lexical.Lexeme;
+import com.miwan.interpreter.lexical.TokenKind;
 
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author liuziang
@@ -14,6 +17,86 @@ import java.util.List;
  */
 
 public class Parser {
-	static public void parse(final List<Token> tokens) {
+	//return Root Node
+	static public Node parse(final List<Lexeme> lexemes) {
+		return parseImpl(lexemes, new Pointer<>(0));
 	}
+
+	static private Node parseImpl(final List<Lexeme> lexemes, Pointer<Integer> cursor) {
+		if (cursor.v >= lexemes.size())
+			return null;
+
+		Node lhs = null;
+		switch (lexemes.get(cursor.v).kind) {
+			case LParen: {
+				lhs = parseParenExpr(lexemes, cursor);
+			}
+			break;
+			case Identifier: {
+				lhs = parseId(lexemes, cursor);
+			}
+			break;
+			case Number: {
+				lhs = parseNumber(lexemes, cursor);
+			}
+			break;
+			default:
+				return null;
+		}
+		if (cursor.v < lexemes.size())
+			return parseBinaryExpr(lexemes, cursor, lhs);
+		return lhs;
+	}
+
+	static private Node parseId(final List<Lexeme> lexemes, Pointer<Integer> idx) {
+		if (lexemes.get(idx.v + 1).kind != TokenKind.LParen) {
+			return new IdNode(lexemes.get(idx.v++).text);
+		} else {
+			Lexeme func = lexemes.get(idx.v);
+			idx.v += 2;//eat function name and (
+			ArrayList<Node> args = new ArrayList<>();
+			for (; idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen; idx.v++) {
+				args.add(parseImpl(lexemes, idx));
+			}
+			idx.v++;//eat)
+			return new CallExpr(func.text, args);
+		}
+	}
+
+	static private Node parseNumber(final List<Lexeme> lexemes, Pointer<Integer> idx) {
+		Lexeme lexeme = lexemes.get(idx.v++);
+		if (lexeme.text.contains(".")) {
+			return new NumberNode(Double.parseDouble(lexeme.text));
+		} else {
+			return new NumberNode(Integer.parseInt(lexeme.text));
+		}
+	}
+
+	static private Node parseParenExpr(final List<Lexeme> lexemes, Pointer<Integer> idx) {
+		idx.v++;//eat (
+		ParenExpr parenExpr = new ParenExpr(parseImpl(lexemes, idx));
+		if (lexemes.get(idx.v).kind != TokenKind.RParen)
+			throw new RuntimeException("expected ')'");
+		idx.v++;  // eat )
+		return parenExpr;
+	}
+
+	//1+1+1
+	static private Node parseBinaryExpr(final List<Lexeme> lexemes, Pointer<Integer> idx, Node lhs) {
+		Lexeme opLex = lexemes.get(idx.v);
+		OperatorDefinition.OperatorInfo opInfo = OperatorDefinition.operators.get(opLex.text);
+		if (opInfo == null) {
+			return lhs;
+		}
+		idx.v++;//eat op
+		Node rhs = parseImpl(lexemes, idx);
+		if (idx.v < lexemes.size()) {
+			OperatorDefinition.OperatorInfo nextOpInfo = OperatorDefinition.operators.get(lexemes.get(idx.v).text);
+			if (nextOpInfo != null && nextOpInfo.precedence < opInfo.precedence) {
+				rhs = parseBinaryExpr(lexemes, idx, rhs);
+			}
+		}
+		return new BinaryExpr(opLex, lhs, rhs);
+	}
+
 }
