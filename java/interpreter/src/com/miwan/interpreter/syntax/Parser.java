@@ -50,7 +50,7 @@ public class Parser {
 
 	static private Node parseId(final List<Lexeme> lexemes, Pointer<Integer> idx) {
 		if (lexemes.get(idx.v + 1).kind != TokenKind.LParen) {
-			return new IdNode(lexemes.get(idx.v++).text);
+			return new IdExpr(lexemes.get(idx.v++).text);
 		} else {
 			Lexeme func = lexemes.get(idx.v);
 			idx.v += 2;//eat function name and (
@@ -66,9 +66,9 @@ public class Parser {
 	static private Node parseNumber(final List<Lexeme> lexemes, Pointer<Integer> idx) {
 		Lexeme lexeme = lexemes.get(idx.v++);
 		if (lexeme.text.contains(".")) {
-			return new NumberNode(Double.parseDouble(lexeme.text));
+			return new NumberExpr(Double.parseDouble(lexeme.text));
 		} else {
-			return new NumberNode(Integer.parseInt(lexeme.text));
+			return new NumberExpr(Integer.parseInt(lexeme.text));
 		}
 	}
 

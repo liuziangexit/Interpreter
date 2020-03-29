@@ -15,4 +15,5 @@ public abstract class Node {
 	abstract public Collection<Node> children();
 
 	public Node parent;
+
 }

@@ -3,8 +3,8 @@ package com.miwan.interpreter.syntax;
 import java.util.Collection;
 import java.util.Collections;
 
-public class NumberNode extends Node {
-	public NumberNode(Number value) {
+public class NumberExpr extends Node {
+	public NumberExpr(Number value) {
 		this.value = value;
 	}
 

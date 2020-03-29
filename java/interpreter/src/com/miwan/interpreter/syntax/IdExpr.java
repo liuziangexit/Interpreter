@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class IdNode extends Node {
-	public IdNode(String id) {
+public class IdExpr extends Node {
+	public IdExpr(String id) {
 		this.id = id;
 	}
 
