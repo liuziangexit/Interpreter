@@ -32,6 +32,9 @@ public class Test {
 		Node parse = Parser.parse(Scanner.scan("1+(2+3)"));
 		Node parse2 = Parser.parse(Scanner.scan("1*(2+3)"));
 		Node parse3 = Parser.parse(Scanner.scan("1+2*3"));
+		Node parse4 = Parser.parse(Scanner.scan("1+2+3"));
+		Node parse5 = Parser.parse(Scanner.scan("2^3+7"));
+		Node parse6 = Parser.parse(Scanner.scan("3+4*2/(1-5)^2^3+(7-9)^2"));
 		System.out.println("");
 
 		//测试三元运算符

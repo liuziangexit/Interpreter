@@ -19,10 +19,10 @@ import java.util.function.Function;
 public class Parser {
 	//return Root Node
 	static public Node parse(final List<Lexeme> lexemes) {
-		return parseImpl(lexemes, new Pointer<>(0));
+		return parseImpl(lexemes, new Pointer<>(0), true);
 	}
 
-	static private Node parseImpl(final List<Lexeme> lexemes, Pointer<Integer> cursor) {
+	static private Node parseImpl(final List<Lexeme> lexemes, Pointer<Integer> cursor, boolean parseBinaryOp) {
 		if (cursor.v >= lexemes.size())
 			return null;
 
@@ -43,7 +43,7 @@ public class Parser {
 			default:
 				return null;
 		}
-		if (cursor.v < lexemes.size())
+		if (parseBinaryOp && cursor.v < lexemes.size())
 			return parseBinaryExpr(lexemes, cursor, lhs);
 		return lhs;
 	}
@@ -56,7 +56,7 @@ public class Parser {
 			idx.v += 2;//eat function name and (
 			ArrayList<Node> args = new ArrayList<>();
 			for (; idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen; idx.v++) {
-				args.add(parseImpl(lexemes, idx));
+				args.add(parseImpl(lexemes, idx, true));
 			}
 			idx.v++;//eat)
 			return new CallExpr(func.text, args);
@@ -74,7 +74,7 @@ public class Parser {
 
 	static private Node parseParenExpr(final List<Lexeme> lexemes, Pointer<Integer> idx) {
 		idx.v++;//eat (
-		ParenExpr parenExpr = new ParenExpr(parseImpl(lexemes, idx));
+		ParenExpr parenExpr = new ParenExpr(parseImpl(lexemes, idx, true));
 		if (lexemes.get(idx.v).kind != TokenKind.RParen)
 			throw new RuntimeException("expected ')'");
 		idx.v++;  // eat )
@@ -89,11 +89,15 @@ public class Parser {
 			return lhs;
 		}
 		idx.v++;//eat op
-		Node rhs = parseImpl(lexemes, idx);
+		Node rhs = parseImpl(lexemes, idx, false);
 		if (idx.v < lexemes.size()) {
 			OperatorDefinition.OperatorInfo nextOpInfo = OperatorDefinition.operators.get(lexemes.get(idx.v).text);
-			if (nextOpInfo != null && nextOpInfo.precedence < opInfo.precedence) {
-				rhs = parseBinaryExpr(lexemes, idx, rhs);
+			if (nextOpInfo != null) {
+				if (nextOpInfo.precedence < opInfo.precedence) {
+					rhs = parseBinaryExpr(lexemes, idx, rhs);
+				} else {
+					return parseBinaryExpr(lexemes, idx, new BinaryExpr(opLex, lhs, rhs));
+				}
 			}
 		}
 		return new BinaryExpr(opLex, lhs, rhs);
