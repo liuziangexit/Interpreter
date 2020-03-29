@@ -1,5 +1,6 @@
 package com.miwan.interpreter;
 
+import com.miwan.interpreter.lexical.Lexeme;
 import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.runtime.AstEvaluator;
 import com.miwan.interpreter.runtime.VirtualMachine;
@@ -35,9 +36,9 @@ public class Test {
 		Node parse3 = Parser.parse(Scanner.scan("1+2*3"));
 		Node parse4 = Parser.parse(Scanner.scan("1+2+3"));
 		Node parse5 = Parser.parse(Scanner.scan("2^3+7"));
-		Node parse6 = Parser.parse(Scanner.scan("3+4*2/(1-5)^2^3+(7-9)^2"));
-		Node parse7 = Parser.parse(Scanner.scan("3+4*2/pow(1-5,pow(2,3))"));
-		Object eval = VirtualMachine.eval(parse7);
+		//这里还是错的
+		Node parse6 = Parser.parse(Scanner.scan("-(0.6*137-(1-0)*0+7*1+100)*1"));
+		Object eval = VirtualMachine.eval(parse6);
 		System.out.println("");
 
 		//测试三元运算符

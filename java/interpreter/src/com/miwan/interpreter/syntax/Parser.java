@@ -36,6 +36,16 @@ public class Parser {
 				lhs = parseId(lexemes, cursor);
 			}
 			break;
+			case Minus: {
+				if (lexemes.get(cursor.v + 1).kind == TokenKind.Number) {
+					lhs = parseNumber(lexemes, cursor);
+				} else {
+					Lexeme curLex = lexemes.get(cursor.v);
+					cursor.v++;
+					lhs = new BinaryExpr(curLex, new NumberExpr(-1), parseImpl(lexemes, cursor, parseBinaryOp));
+				}
+			}
+			break;
 			case Number: {
 				lhs = parseNumber(lexemes, cursor);
 			}
@@ -64,11 +74,17 @@ public class Parser {
 	}
 
 	static private Node parseNumber(final List<Lexeme> lexemes, Pointer<Integer> idx) {
+		String text;
 		Lexeme lexeme = lexemes.get(idx.v++);
-		if (lexeme.text.contains(".")) {
-			return new NumberExpr(Double.parseDouble(lexeme.text));
+		if (lexeme.kind == TokenKind.Minus) {
+			text = lexeme.text + lexemes.get(idx.v++).text;
 		} else {
-			return new NumberExpr(Integer.parseInt(lexeme.text));
+			text = lexeme.text;
+		}
+		if (text.contains(".")) {
+			return new NumberExpr(Double.parseDouble(text));
+		} else {
+			return new NumberExpr(Integer.parseInt(text));
 		}
 	}
 
