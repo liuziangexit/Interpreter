@@ -24,6 +24,14 @@ public class CallExpr extends Node {
 
 	@Override
 	public String toString() {
-		return func + ":" + args.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.func).append('(');
+		for (int i = 0; i < this.args.size(); i++) {
+			sb.append(this.args.get(i).toString());
+			if (i != this.args.size() - 1)
+				sb.append(", ");
+		}
+		sb.append(')');
+		return sb.toString();
 	}
 }

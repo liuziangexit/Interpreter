@@ -26,7 +26,7 @@ public class Parser {
 		if (cursor.v >= lexemes.size())
 			return null;
 
-		Node lhs = null;
+		Node lhs;
 		switch (lexemes.get(cursor.v).kind) {
 			case LParen: {
 				lhs = parseParenExpr(lexemes, cursor);
@@ -66,12 +66,15 @@ public class Parser {
 			return new IdExpr(lexemes.get(idx.v++).text);
 		} else {
 			Lexeme func = lexemes.get(idx.v);
-			idx.v += 2;//eat function name and (
+			idx.v++;//eat function name
 			ArrayList<Node> args = new ArrayList<>();
-			for (; idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen; idx.v++) {
+			while (idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen) {
+				idx.v++;
 				args.add(parseImpl(lexemes, idx, true));
 			}
-			idx.v++;//eat)
+			if (idx.v >= lexemes.size() || lexemes.get(idx.v).kind != TokenKind.RParen)
+				throw new RuntimeException("expect a ')'");
+			idx.v++;//eat (
 			return new CallExpr(func.text, args);
 		}
 	}

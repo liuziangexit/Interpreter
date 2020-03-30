@@ -31,7 +31,7 @@ public class Test {
 		long time = System.currentTimeMillis();
 
 		Node parseParen = Parser.parse(Scanner.scan("(())"));
-		Node parseCall = Parser.parse(Scanner.scan("func(a,func2(),c)"));
+		Node parseCall = Parser.parse(Scanner.scan("func(a,func2(1,2),c)"));
 		Node parse = Parser.parse(Scanner.scan("1+(2+3)"));
 		Node parse2 = Parser.parse(Scanner.scan("1*(2+3)"));
 		Node parse3 = Parser.parse(Scanner.scan("1+2*3"));
@@ -40,9 +40,8 @@ public class Test {
 		Node parse5 = Parser.parse(Scanner.scan("1^2*3+4"));
 
 		//TODO 3+4*2/(1-5)^2^3+(7-9)^2
-		//TODO 3+4*2/pow(1-5,pow(2,3))
-		Node parse6 = Parser.parse(Scanner.scan("1-(-1)*0+1"));
-		Collection<AstNode> parse62 = ShuntingYard.compile(Scanner.scan("1-(-1)*0+1"));
+		Node parse6 = Parser.parse(Scanner.scan("3+4*2/(1-5)^2^3+(7-9)^2"));
+		Collection<AstNode> parse62 = ShuntingYard.compile(Scanner.scan("3+4*2/((1-5)^2)^3+(7-9)^2"));
 		Object eval = VirtualMachine.eval(parse6);
 		Object eval2 = AstEvaluator.evaluate(parse62);
 		System.out.println("");
