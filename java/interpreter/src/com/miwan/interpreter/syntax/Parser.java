@@ -52,8 +52,12 @@ public class Parser {
 			default:
 				return null;
 		}
-		if (parseBinaryOp && cursor.v < lexemes.size())
-			return parseBinaryExpr(lexemes, cursor, parseBinaryExpr(lexemes, cursor, lhs, Integer.MAX_VALUE), Integer.MAX_VALUE);
+		while (parseBinaryOp && cursor.v < lexemes.size()) {
+			Node expr = parseBinaryExpr(lexemes, cursor, lhs, Integer.MAX_VALUE);
+			if (expr == lhs)
+				break;
+			lhs = expr;
+		}
 		return lhs;
 	}
 

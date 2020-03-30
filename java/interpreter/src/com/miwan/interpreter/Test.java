@@ -37,9 +37,12 @@ public class Test {
 		Node parse3 = Parser.parse(Scanner.scan("1+2*3"));
 		Node parse4 = Parser.parse(Scanner.scan("1+2+3"));
 		//1.多个(实际上是2个以上)op优先级从大到小的时候还是会出问题2.运算符^要特殊处理成右结合性
-		Node parse5 = Parser.parse(Scanner.scan("1^2*3+7*2^4"));
-		Node parse6 = Parser.parse(Scanner.scan("2^3^4"));
-		Collection<AstNode> parse62 = ShuntingYard.compile(Scanner.scan("2^3^4"));
+		Node parse5 = Parser.parse(Scanner.scan("1^2*3+4"));
+
+		//TODO 3+4*2/(1-5)^2^3+(7-9)^2
+		//TODO 3+4*2/pow(1-5,pow(2,3))
+		Node parse6 = Parser.parse(Scanner.scan("1-(-1)*0+1"));
+		Collection<AstNode> parse62 = ShuntingYard.compile(Scanner.scan("1-(-1)*0+1"));
 		Object eval = VirtualMachine.eval(parse6);
 		Object eval2 = AstEvaluator.evaluate(parse62);
 		System.out.println("");
