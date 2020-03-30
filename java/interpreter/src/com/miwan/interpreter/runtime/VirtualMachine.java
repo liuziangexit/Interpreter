@@ -22,7 +22,7 @@ public class VirtualMachine {
 	}
 
 	static private Object evalBinaryExpr(BinaryExpr node) {
-		OperatorDefinition.OperatorInfo impl = OperatorDefinition.operators.get(node.op.text);
+		OperatorDefinition.OperatorInfo impl = OperatorDefinition.operators.get(node.op);
 		return impl.calculation.calculate(new Object[]{eval(node.lhs), eval(node.rhs)});
 	}
 

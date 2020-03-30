@@ -10,6 +10,7 @@ import com.miwan.interpreter.syntax.Parser;
 import com.miwan.interpreter.syntax.ShuntingYard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Test {
@@ -35,12 +36,17 @@ public class Test {
 		Node parse2 = Parser.parse(Scanner.scan("1*(2+3)"));
 		Node parse3 = Parser.parse(Scanner.scan("1+2*3"));
 		Node parse4 = Parser.parse(Scanner.scan("1+2+3"));
-		Node parse5 = Parser.parse(Scanner.scan("2^3+7"));
-		//这里还是错的
-		Node parse6 = Parser.parse(Scanner.scan("-(0.6*137-(1-0)*0+7*1+100)*1"));
+		//1.多个(实际上是2个以上)op优先级从大到小的时候还是会出问题2.运算符^要特殊处理成右结合性
+		Node parse5 = Parser.parse(Scanner.scan("1^2*3+7*2^4"));
+		Node parse6 = Parser.parse(Scanner.scan("2^3^4"));
+		Collection<AstNode> parse62 = ShuntingYard.compile(Scanner.scan("2^3^4"));
 		Object eval = VirtualMachine.eval(parse6);
+		Object eval2 = AstEvaluator.evaluate(parse62);
 		System.out.println("");
 
+
+		//TODO
+		//1-(-1)*0+1加这个测试用例
 		//测试三元运算符
 		//普通情形
 		/*if (0 != ((Number) AstEvaluator.evaluate(ShuntingYard.compile(Scanner.scan("0?1:0")))).intValue())

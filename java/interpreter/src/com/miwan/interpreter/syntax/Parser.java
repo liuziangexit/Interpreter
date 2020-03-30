@@ -40,9 +40,8 @@ public class Parser {
 				if (lexemes.get(cursor.v + 1).kind == TokenKind.Number) {
 					lhs = parseNumber(lexemes, cursor);
 				} else {
-					Lexeme curLex = lexemes.get(cursor.v);
 					cursor.v++;
-					lhs = new BinaryExpr(curLex, new NumberExpr(-1), parseImpl(lexemes, cursor, parseBinaryOp));
+					lhs = new BinaryExpr("*", new NumberExpr(-1), parseImpl(lexemes, cursor, false));
 				}
 			}
 			break;
@@ -54,7 +53,7 @@ public class Parser {
 				return null;
 		}
 		if (parseBinaryOp && cursor.v < lexemes.size())
-			return parseBinaryExpr(lexemes, cursor, lhs);
+			return parseBinaryExpr(lexemes, cursor, parseBinaryExpr(lexemes, cursor, lhs, Integer.MAX_VALUE), Integer.MAX_VALUE);
 		return lhs;
 	}
 
@@ -97,26 +96,27 @@ public class Parser {
 		return parenExpr;
 	}
 
-	//1+1+1
-	static private Node parseBinaryExpr(final List<Lexeme> lexemes, Pointer<Integer> idx, Node lhs) {
+	static private Node parseBinaryExpr(final List<Lexeme> lexemes, Pointer<Integer> idx, Node lhs, int prevPrecedence) {
+		if (idx.v == lexemes.size())
+			return lhs;
 		Lexeme opLex = lexemes.get(idx.v);
 		OperatorDefinition.OperatorInfo opInfo = OperatorDefinition.operators.get(opLex.text);
-		if (opInfo == null) {
+		if (opInfo == null || opInfo.precedence > prevPrecedence) {
 			return lhs;
 		}
 		idx.v++;//eat op
 		Node rhs = parseImpl(lexemes, idx, false);
 		if (idx.v < lexemes.size()) {
 			OperatorDefinition.OperatorInfo nextOpInfo = OperatorDefinition.operators.get(lexemes.get(idx.v).text);
+			//如果下一个token是运算符
 			if (nextOpInfo != null) {
 				if (nextOpInfo.precedence < opInfo.precedence) {
-					rhs = parseBinaryExpr(lexemes, idx, rhs);
-				} else {
-					return parseBinaryExpr(lexemes, idx, new BinaryExpr(opLex, lhs, rhs));
+					//下一个运算符优先级比当前运算符的高
+					rhs = parseBinaryExpr(lexemes, idx, rhs, nextOpInfo.precedence);
 				}
 			}
 		}
-		return new BinaryExpr(opLex, lhs, rhs);
+		return parseBinaryExpr(lexemes, idx, new BinaryExpr(opLex.text, lhs, rhs), opInfo.precedence);
 	}
 
 }

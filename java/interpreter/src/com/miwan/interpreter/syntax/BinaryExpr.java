@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public class BinaryExpr extends Node {
-	public Lexeme op;
+	public String op;
 	public Node lhs, rhs;
 
-	public BinaryExpr(Lexeme op, Node lhs, Node rhs) {
+	public BinaryExpr(String op, Node lhs, Node rhs) {
 		this.op = op;
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -24,6 +24,6 @@ public class BinaryExpr extends Node {
 
 	@Override
 	public String toString() {
-		return lhs + op.text + rhs;
+		return "(" + lhs + op + rhs + ")";
 	}
 }
