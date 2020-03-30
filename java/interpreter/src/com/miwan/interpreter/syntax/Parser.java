@@ -49,6 +49,15 @@ public class Parser {
 				lhs = parseNumber(lexemes, cursor);
 			}
 			break;
+			case True:
+			case False: {
+				lhs = parseBooleanLiteral(lexemes, cursor);
+			}
+			break;
+			case Not: {
+				lhs = parseLogicNot(lexemes, cursor);
+			}
+			break;
 			default:
 				return null;
 		}
@@ -61,21 +70,43 @@ public class Parser {
 		return lhs;
 	}
 
+	static private Node parseLogicNot(final List<Lexeme> lexemes, Pointer<Integer> idx) {
+		idx.v++;//eat !
+		return new LogicNotExpr(parseImpl(lexemes, idx, true));
+	}
+
+	static private Node parseBooleanLiteral(final List<Lexeme> lexemes, Pointer<Integer> idx) {
+		Lexeme lexeme = lexemes.get(idx.v++);
+		if (lexeme.kind == TokenKind.True) {
+			return new BooleanLiteralExpr(true);
+		} else {
+			return new BooleanLiteralExpr(false);
+		}
+	}
+
 	static private Node parseId(final List<Lexeme> lexemes, Pointer<Integer> idx) {
 		if (lexemes.get(idx.v + 1).kind != TokenKind.LParen) {
 			return new IdExpr(lexemes.get(idx.v++).text);
 		} else {
 			Lexeme func = lexemes.get(idx.v);
 			idx.v++;//eat function name
-			ArrayList<Node> args = new ArrayList<>();
-			while (idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen) {
-				idx.v++;
-				args.add(parseImpl(lexemes, idx, true));
+			List<Node> argList;
+			if (lexemes.get(idx.v + 1).kind != TokenKind.RParen) {
+				//parse argument list
+				argList = new ArrayList<>();
+				while (idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen) {
+					idx.v++;
+					argList.add(parseImpl(lexemes, idx, true));
+				}
+			} else {
+				//no argument
+				argList = Collections.emptyList();
+				idx.v++;//eat (
 			}
 			if (idx.v >= lexemes.size() || lexemes.get(idx.v).kind != TokenKind.RParen)
 				throw new RuntimeException("expect a ')'");
-			idx.v++;//eat (
-			return new CallExpr(func.text, args);
+			idx.v++;//eat )
+			return new CallExpr(func.text, argList);
 		}
 	}
 

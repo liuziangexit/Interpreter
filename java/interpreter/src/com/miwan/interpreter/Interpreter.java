@@ -1,11 +1,9 @@
 package com.miwan.interpreter;
 
 import com.miwan.interpreter.lexical.Scanner;
-import com.miwan.interpreter.runtime.AstEvaluator;
-import com.miwan.interpreter.syntax.AstNode;
-import com.miwan.interpreter.syntax.ShuntingYard;
-
-import java.util.Collection;
+import com.miwan.interpreter.runtime.VirtualMachine;
+import com.miwan.interpreter.syntax.Node;
+import com.miwan.interpreter.syntax.Parser;
 
 /**
  * @author liuziang
@@ -34,8 +32,8 @@ public class Interpreter {
 	 * @throws Exception 如果input不符合STMT的定义，则某些异常可能被抛出
 	 */
 	static public Object eval(final String input, VariableSource source) {
-		Collection<AstNode> compiled = ShuntingYard.compile(Scanner.scan(input));
-		return AstEvaluator.evaluate(compiled, source);
+		Node ast = Parser.parse(Scanner.scan(input));
+		return VirtualMachine.eval(ast, source);
 	}
 
 	@FunctionalInterface
