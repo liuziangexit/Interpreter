@@ -14,6 +14,8 @@ public abstract class Node {
 
 	abstract public Collection<Node> children();
 
+	/*abstract public Object eval();*/
+
 	public Node parent;
 
 }

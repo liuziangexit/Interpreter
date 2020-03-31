@@ -3,7 +3,6 @@ package com.miwan.interpreter;
 import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.runtime.VirtualMachine;
 import com.miwan.interpreter.syntax.BinaryExpr;
-import com.miwan.interpreter.syntax.Node;
 import com.miwan.interpreter.syntax.NumberExpr;
 import com.miwan.interpreter.syntax.Parser;
 

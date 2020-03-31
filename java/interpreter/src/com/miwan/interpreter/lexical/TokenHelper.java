@@ -7,15 +7,15 @@ import java.util.HashMap;
  * @contact liuziang@liuziangexit.com
  * @date 12/17/2019
  * <p>
- * 词法单元(token)
+ * TokenHelper
  */
 
-public class Token {
+public class TokenHelper {
 
 	//符号表
 	static private HashMap<String, Lexeme> pool = new HashMap<>();
 
-	//创建token
+	//创建Lex
 	static public Lexeme createLexeme(String text, TokenKind kind) {
 		Lexeme find = pool.get(text);
 		if (find != null)
@@ -23,18 +23,5 @@ public class Token {
 		Lexeme newLex = new Lexeme(text, kind);
 		pool.put(text, newLex);
 		return newLex;
-	}
-
-	private Token(String text, TokenKind kind) {
-		this.text = text;
-		this.kind = kind;
-	}
-
-	public final String text;
-	public final TokenKind kind;
-
-	@Override
-	public String toString() {
-		return kind + "( " + text + " )";
 	}
 }

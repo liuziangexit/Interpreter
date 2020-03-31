@@ -18,7 +18,7 @@ public class Scanner {
 		final List<Lexeme> result = new ArrayList<>();
 		final StringBuilder currentLex = new StringBuilder();
 		final Consumer<TokenKind> newToken = kind -> {
-			result.add(Token.createLexeme(currentLex.toString(), kind));
+			result.add(TokenHelper.createLexeme(currentLex.toString(), kind));
 			currentLex.setLength(0);
 		};
 

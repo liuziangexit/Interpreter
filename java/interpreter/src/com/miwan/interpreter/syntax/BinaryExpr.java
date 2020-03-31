@@ -1,7 +1,5 @@
 package com.miwan.interpreter.syntax;
 
-import com.miwan.interpreter.lexical.Lexeme;
-
 import java.util.Arrays;
 import java.util.Collection;
 
