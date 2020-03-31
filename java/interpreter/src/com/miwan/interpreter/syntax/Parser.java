@@ -1,6 +1,6 @@
 package com.miwan.interpreter.syntax;
 
-import com.miwan.interpreter.runtime.OperatorDefinition;
+import com.miwan.interpreter.runtime.Builtin;
 import com.miwan.interpreter.syntax.ast.*;
 import com.miwan.interpreter.util.Pointer;
 import com.miwan.interpreter.lexical.Lexeme;
@@ -38,7 +38,11 @@ public class Parser {
 			}
 			break;
 			case Identifier: {
-				lhs = parseId(lexemes, cursor);
+				if (cursor.v + 1 >= lexemes.size() || lexemes.get(cursor.v + 1).kind != TokenKind.LParen) {
+					lhs = new IdExpr(lexemes.get(cursor.v++).text);
+				} else {
+					lhs = parseCall(lexemes, cursor);
+				}
 			}
 			break;
 			case Minus: {
@@ -66,17 +70,19 @@ public class Parser {
 			break;
 			case Not: {
 				cursor.v++;//eat !
-				lhs = new LogicNotExpr(parseImpl(lexemes, cursor, true));
+				lhs = new LogicNotExpr(parseImpl(lexemes, cursor, false));
 			}
 			break;
 			/*case QMark: {
+				cursor.v++;//eat ?
+				Node node = parseImpl(lexemes, cursor, parseBinaryOp);
 			}
 			break;*/
 			default:
 				return null;
 		}
 		while (parseBinaryOp && cursor.v < lexemes.size()) {
-			Node expr = parseBinaryExpr(lexemes, cursor, lhs, Integer.MAX_VALUE);
+			Node expr = parseBinaryExpr(lexemes, cursor, lhs, Integer.MIN_VALUE);
 			if (expr == lhs)
 				break;
 			lhs = expr;
@@ -84,30 +90,26 @@ public class Parser {
 		return lhs;
 	}
 
-	static private Node parseId(final List<Lexeme> lexemes, Pointer<Integer> idx) {
-		if (lexemes.get(idx.v + 1).kind != TokenKind.LParen) {
-			return new IdExpr(lexemes.get(idx.v++).text);
-		} else {
-			Lexeme func = lexemes.get(idx.v);
-			idx.v++;//eat function name
-			List<Node> argList;
-			if (lexemes.get(idx.v + 1).kind != TokenKind.RParen) {
-				//parse argument list
-				argList = new ArrayList<>();
-				while (idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen) {
-					idx.v++;
-					argList.add(parseImpl(lexemes, idx, true));
-				}
-			} else {
-				//no argument
-				argList = Collections.emptyList();
-				idx.v++;//eat (
+	static private Node parseCall(final List<Lexeme> lexemes, Pointer<Integer> idx) {
+		Lexeme func = lexemes.get(idx.v);
+		idx.v++;//eat function name
+		List<Node> argList;
+		if (lexemes.get(idx.v + 1).kind != TokenKind.RParen) {
+			//parse argument list
+			argList = new ArrayList<>();
+			while (idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen) {
+				idx.v++;
+				argList.add(parseImpl(lexemes, idx, true));
 			}
-			if (idx.v >= lexemes.size() || lexemes.get(idx.v).kind != TokenKind.RParen)
-				throw new RuntimeException("expect a ')'");
-			idx.v++;//eat )
-			return new CallExpr(func.text, argList);
+		} else {
+			//no argument
+			argList = Collections.emptyList();
+			idx.v++;//eat (
 		}
+		if (idx.v >= lexemes.size() || lexemes.get(idx.v).kind != TokenKind.RParen)
+			throw new RuntimeException("expect a ')'");
+		idx.v++;//eat )
+		return new CallExpr(func.text, argList);
 	}
 
 	static private Node parseNumber(final List<Lexeme> lexemes, Pointer<Integer> idx) {
@@ -129,23 +131,23 @@ public class Parser {
 		if (idx.v == lexemes.size())
 			return lhs;
 		Lexeme opLex = lexemes.get(idx.v);
-		OperatorDefinition.OperatorInfo opInfo = OperatorDefinition.operators.get(opLex.text);
-		if (opInfo == null || opInfo.precedence > prevPrecedence) {
+		Integer opPrd = Builtin.precedence(opLex.text);
+		if (opPrd == null || opPrd < prevPrecedence) {
 			return lhs;
 		}
 		idx.v++;//eat op
 		Node rhs = parseImpl(lexemes, idx, false);
 		if (idx.v < lexemes.size()) {
-			OperatorDefinition.OperatorInfo nextOpInfo = OperatorDefinition.operators.get(lexemes.get(idx.v).text);
+			Integer nextOpPrd = Builtin.precedence(lexemes.get(idx.v).text);
 			//如果下一个token是运算符
-			if (nextOpInfo != null) {
-				if (nextOpInfo.precedence < opInfo.precedence) {
+			if (nextOpPrd != null) {
+				if (nextOpPrd > opPrd) {
 					//下一个运算符优先级比当前运算符的高
-					rhs = parseBinaryExpr(lexemes, idx, rhs, nextOpInfo.precedence);
+					rhs = parseBinaryExpr(lexemes, idx, rhs, nextOpPrd);
 				}
 			}
 		}
-		return parseBinaryExpr(lexemes, idx, new BinaryExpr(opLex.text, lhs, rhs), opInfo.precedence);
+		return parseBinaryExpr(lexemes, idx, new BinaryExpr(opLex.text, lhs, rhs), opPrd);
 	}
 
 }

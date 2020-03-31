@@ -1,7 +1,8 @@
 package com.miwan.interpreter.syntax.ast;
 
 import com.miwan.interpreter.runtime.Environment;
-import com.miwan.interpreter.runtime.OperatorDefinition;
+import com.miwan.interpreter.runtime.FunctionCall;
+import com.miwan.interpreter.runtime.TypeSystem;
 
 import java.util.Collection;
 
@@ -27,8 +28,12 @@ public class LogicNotExpr extends Node {
 
 	@Override
 	public Object eval(Environment env) {
-		OperatorDefinition.OperatorInfo impl = OperatorDefinition.operators.get("!");
-		return impl.calculation.calculate(new Object[]{this.inner.eval(env)});
+		Object innerValue = this.inner.eval(env);
+		Boolean o = TypeSystem.implicitConvert(innerValue, Boolean.class);
+		if (o == null) {
+			throw new RuntimeException(this.inner.toString() + " can not be convert to boolean");
+		}
+		return !o;
 	}
 
 	@Override

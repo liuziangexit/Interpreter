@@ -17,6 +17,7 @@ import com.miwan.interpreter.syntax.Parser;
 public class Interpreter {
 
 	/**
+	 * FIXME 此注释已过时
 	 * 文法定义：
 	 * NUM(数字字面量) -> 可带小数的数字
 	 * BOOL(布尔字面量) -> "true" | "false"

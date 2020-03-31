@@ -1,7 +1,7 @@
 package com.miwan.interpreter.syntax.ast;
 
 import com.miwan.interpreter.runtime.Environment;
-import com.miwan.interpreter.runtime.OperatorDefinition;
+import com.miwan.interpreter.runtime.FunctionCall;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,8 +33,7 @@ public class BinaryExpr extends Node {
 
 	@Override
 	public Object eval(Environment env) {
-		OperatorDefinition.OperatorInfo impl = OperatorDefinition.operators.get(this.op);
-		return impl.calculation.calculate(new Object[]{this.lhs.eval(env), this.rhs.eval(env)});
+		return FunctionCall.makeCall(this.op, new Object[]{this.lhs.eval(env), this.rhs.eval(env)}, true);
 	}
 
 	@Override

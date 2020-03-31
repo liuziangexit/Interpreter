@@ -1,7 +1,7 @@
 package com.miwan.interpreter.syntax.ast;
 
 import com.miwan.interpreter.runtime.Environment;
-import com.miwan.interpreter.runtime.OperatorDefinition;
+import com.miwan.interpreter.runtime.FunctionCall;
 import com.miwan.interpreter.util.CollectionCombinator;
 
 import java.util.ArrayList;
@@ -34,12 +34,11 @@ public class CallExpr extends Node {
 
 	@Override
 	public Object eval(Environment env) {
-		OperatorDefinition.FunctionInfo impl = OperatorDefinition.functions.get(this.func.id);
 		Object[] args = new Object[this.args.size()];
 		for (int i = 0; i < this.args.size(); i++) {
 			args[i] = this.args.get(i).eval(env);
 		}
-		return impl.calculation.calculate(args);
+		return FunctionCall.makeCall(this.func.id, args, false);
 	}
 
 	@Override

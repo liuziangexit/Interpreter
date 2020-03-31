@@ -4,6 +4,7 @@ import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.runtime.Environment;
 import com.miwan.interpreter.runtime.VirtualMachine;
 import com.miwan.interpreter.syntax.ast.BinaryExpr;
+import com.miwan.interpreter.syntax.ast.Node;
 import com.miwan.interpreter.syntax.ast.NumberExpr;
 import com.miwan.interpreter.syntax.Parser;
 
@@ -24,6 +25,14 @@ public class Test {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 		//TODO
+		//FIXME 实现getnexttoken，而不是自己去list按索引拿
+		//FIXME 实现语法检错
+		//FIXME 这些测试用例要参照新的实现重新写
+		//FIXME 把逻辑非当二元的做法是不对的吧
+		//"-(max(phyattacka,magicattacka)-defendb))*0.5"
+		//-(phyattacka-defendb)*0.9*(0.8+stara*0.088+max(0,(4-preaimcount))*0.15)+5.9*skilllevela
+		Node parse = Parser.parse(Scanner.scan("(phyattacka)*0.9+skilllevela"));
+		System.out.println("");
 		//1-(-1)*0+1加这个测试用例
 		//测试三元运算符
 		//普通情形
@@ -129,13 +138,13 @@ public class Test {
 				throw new RuntimeException();
 			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("abs(9710)")))).equals("9710"))
 				throw new RuntimeException();
-			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("max(9710,9711)")))).equals("9711"))
+			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("max(9710,9711)")))).equals("9711.0"))
 				throw new RuntimeException();
-			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("min(9710,9711)")))).equals("9710"))
+			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("min(9710,9711)")))).equals("9710.0"))
 				throw new RuntimeException();
-			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("min(-9,1)")))).equals("-9"))
+			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("min(-9,1)")))).equals("-9.0"))
 				throw new RuntimeException();
-			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("round(10.5)")))).equals("11"))
+			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("round(10.5)")))).equals("11.0"))
 				throw new RuntimeException();
 			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("floor(10.5)")))).equals("10.0"))
 				throw new RuntimeException();
