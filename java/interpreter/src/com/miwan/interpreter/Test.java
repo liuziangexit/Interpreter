@@ -2,6 +2,9 @@ package com.miwan.interpreter;
 
 import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.runtime.VirtualMachine;
+import com.miwan.interpreter.syntax.BinaryExpr;
+import com.miwan.interpreter.syntax.Node;
+import com.miwan.interpreter.syntax.NumberExpr;
 import com.miwan.interpreter.syntax.Parser;
 
 public class Test {
@@ -78,11 +81,11 @@ public class Test {
 					.equals("3.0001220703125"))
 				throw new RuntimeException();
 			// 测试数字类型
-			/*ArrayList<AstNode> cc = (ArrayList<AstNode>) ShuntingYard.compile(Scanner.scan("1+1.2"));
-			if (cc.get(0).type != AstNode.NodeType.INTEGER_VALUE)
+			BinaryExpr cc = (BinaryExpr) Parser.parse(Scanner.scan("1+1.2"));
+			if (!(((NumberExpr) cc.lhs).value instanceof Integer))
 				throw new RuntimeException();
-			if (cc.get(1).type != AstNode.NodeType.FP_VALUE)
-				throw new RuntimeException();*/
+			if (!(((NumberExpr) cc.rhs).value instanceof Double))
+				throw new RuntimeException();
 			// 测试^符号的右结合性
 			/*ArrayList<AstNode> a = (ArrayList<AstNode>) ShuntingYard.compile(Scanner.scan("2^2^3^4^5"));
 			if ((int) a.get(0).value != 2)
@@ -208,15 +211,14 @@ public class Test {
 
 		time = System.currentTimeMillis();
 		for (int i = 0; i < 1000000; i++) {
-			@SuppressWarnings("unused")
-			Number optimizationFence = ((Number) VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/(1-5)^2^3+(7-9)^2"))));
-			optimizationFence = ((Number) VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/(1-5)^2^3"))));
-			optimizationFence = ((Number) VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/-4^pow(2,3)"))));
-			optimizationFence = ((Number) VirtualMachine.eval(Parser.parse(Scanner.scan("-1*-log(5)"))));
-			optimizationFence = ((Number) VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/(1-5)^pow(2,3)"))));
-			optimizationFence = ((Number) VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/pow(1-5,2^3)"))));
-			optimizationFence = ((Number) VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/pow(1-5,pow(2,3))"))));
-			optimizationFence = ((Number) VirtualMachine.eval(Parser.parse(Scanner.scan("3+-2^2"))));
+			VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/(1-5)^2^3+(7-9)^2")));
+			VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/(1-5)^2^3")));
+			VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/-4^pow(2,3)")));
+			VirtualMachine.eval(Parser.parse(Scanner.scan("-1*-log(5)")));
+			VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/(1-5)^pow(2,3)")));
+			VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/pow(1-5,2^3)")));
+			VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/pow(1-5,pow(2,3))")));
+			VirtualMachine.eval(Parser.parse(Scanner.scan("3+-2^2")));
 		}
 
 		time = System.currentTimeMillis() - time;
