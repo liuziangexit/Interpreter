@@ -1,9 +1,10 @@
 package com.miwan.interpreter;
 
 import com.miwan.interpreter.lexical.Scanner;
+import com.miwan.interpreter.runtime.Environment;
 import com.miwan.interpreter.runtime.VirtualMachine;
-import com.miwan.interpreter.syntax.BinaryExpr;
-import com.miwan.interpreter.syntax.NumberExpr;
+import com.miwan.interpreter.syntax.ast.BinaryExpr;
+import com.miwan.interpreter.syntax.ast.NumberExpr;
 import com.miwan.interpreter.syntax.Parser;
 
 public class Test {
@@ -101,13 +102,13 @@ public class Test {
 				if (!a.get(z).value.equals("^"))
 					throw new RuntimeException();*/
 			// 测试变量标识符
-			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("3+four*two/(1-5)^pow(2,3)")), varName -> {
+			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("3+four*two/(1-5)^pow(2,3)")), new Environment(varName -> {
 				if (varName.equalsIgnoreCase("four"))
 					return 4;
 				if (varName.equalsIgnoreCase("two"))
 					return 2;
 				return 0;
-			})).equals("3.0001220703125"))
+			}))).equals("3.0001220703125"))
 				throw new RuntimeException();
 			// 关于负号优先级的测试
 			if (!String.valueOf(VirtualMachine.eval(Parser.parse(Scanner.scan("3+4*2/-4^pow(2,3)"))))

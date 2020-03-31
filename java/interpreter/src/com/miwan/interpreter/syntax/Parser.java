@@ -1,19 +1,19 @@
 package com.miwan.interpreter.syntax;
 
-import com.miwan.interpreter.Pointer;
+import com.miwan.interpreter.runtime.OperatorDefinition;
+import com.miwan.interpreter.syntax.ast.*;
+import com.miwan.interpreter.util.Pointer;
 import com.miwan.interpreter.lexical.Lexeme;
 import com.miwan.interpreter.lexical.TokenKind;
 
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * @author liuziang
  * @contact liuziang@liuziangexit.com
  * @date 12/18/2019
  * <p>
- * TODO ⚠️ON PROGRESS
- * Syntax Analysis Phase
+ * 自顶向下的LL(k)
  */
 
 public class Parser {
@@ -29,7 +29,12 @@ public class Parser {
 		Node lhs;
 		switch (lexemes.get(cursor.v).kind) {
 			case LParen: {
-				lhs = parseParenExpr(lexemes, cursor);
+				cursor.v++;//eat (
+				ParenExpr parenExpr = new ParenExpr(parseImpl(lexemes, cursor, true));
+				if (lexemes.get(cursor.v).kind != TokenKind.RParen)
+					throw new RuntimeException("expected ')'");
+				cursor.v++;  // eat )
+				lhs = parenExpr;
 			}
 			break;
 			case Identifier: {
@@ -51,13 +56,22 @@ public class Parser {
 			break;
 			case True:
 			case False: {
-				lhs = parseBooleanLiteral(lexemes, cursor);
+				Lexeme lexeme = lexemes.get(cursor.v++);
+				if (lexeme.kind == TokenKind.True) {
+					lhs = new BooleanLiteralExpr(true);
+				} else {
+					lhs = new BooleanLiteralExpr(false);
+				}
 			}
 			break;
 			case Not: {
-				lhs = parseLogicNot(lexemes, cursor);
+				cursor.v++;//eat !
+				lhs = new LogicNotExpr(parseImpl(lexemes, cursor, true));
 			}
 			break;
+			/*case QMark: {
+			}
+			break;*/
 			default:
 				return null;
 		}
@@ -68,20 +82,6 @@ public class Parser {
 			lhs = expr;
 		}
 		return lhs;
-	}
-
-	static private Node parseLogicNot(final List<Lexeme> lexemes, Pointer<Integer> idx) {
-		idx.v++;//eat !
-		return new LogicNotExpr(parseImpl(lexemes, idx, true));
-	}
-
-	static private Node parseBooleanLiteral(final List<Lexeme> lexemes, Pointer<Integer> idx) {
-		Lexeme lexeme = lexemes.get(idx.v++);
-		if (lexeme.kind == TokenKind.True) {
-			return new BooleanLiteralExpr(true);
-		} else {
-			return new BooleanLiteralExpr(false);
-		}
 	}
 
 	static private Node parseId(final List<Lexeme> lexemes, Pointer<Integer> idx) {
@@ -123,15 +123,6 @@ public class Parser {
 		} else {
 			return new NumberExpr(Integer.parseInt(text));
 		}
-	}
-
-	static private Node parseParenExpr(final List<Lexeme> lexemes, Pointer<Integer> idx) {
-		idx.v++;//eat (
-		ParenExpr parenExpr = new ParenExpr(parseImpl(lexemes, idx, true));
-		if (lexemes.get(idx.v).kind != TokenKind.RParen)
-			throw new RuntimeException("expected ')'");
-		idx.v++;  // eat )
-		return parenExpr;
 	}
 
 	static private Node parseBinaryExpr(final List<Lexeme> lexemes, Pointer<Integer> idx, Node lhs, int prevPrecedence) {

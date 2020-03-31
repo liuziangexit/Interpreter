@@ -1,7 +1,17 @@
-package com.miwan.interpreter.syntax;
+package com.miwan.interpreter.syntax.ast;
+
+import com.miwan.interpreter.runtime.Environment;
 
 import java.util.Collection;
 import java.util.Collections;
+
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 3/31/2020
+ * <p>
+ * 表示一个数字字面量
+ */
 
 public class NumberExpr extends Node {
 	public NumberExpr(Number value) {
@@ -13,6 +23,11 @@ public class NumberExpr extends Node {
 	@Override
 	public Collection<Node> children() {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public Object eval(Environment env) {
+		return this.value;
 	}
 
 	@Override

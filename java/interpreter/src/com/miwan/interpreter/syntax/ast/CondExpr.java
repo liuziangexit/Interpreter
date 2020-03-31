@@ -1,7 +1,17 @@
-package com.miwan.interpreter.syntax;
+package com.miwan.interpreter.syntax.ast;
+
+import com.miwan.interpreter.runtime.Environment;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 3/31/2020
+ * <p>
+ * 表示一个条件运算符表达式
+ */
 
 public class CondExpr extends Node {
 
@@ -16,10 +26,14 @@ public class CondExpr extends Node {
 		no.parent = this;
 	}
 
-
 	@Override
 	public Collection<Node> children() {
 		return Arrays.asList(cond, yes, no);
+	}
+
+	@Override
+	public Object eval(Environment env) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

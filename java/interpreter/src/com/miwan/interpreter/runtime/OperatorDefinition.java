@@ -1,4 +1,4 @@
-package com.miwan.interpreter.syntax;
+package com.miwan.interpreter.runtime;
 
 import java.util.TreeMap;
 

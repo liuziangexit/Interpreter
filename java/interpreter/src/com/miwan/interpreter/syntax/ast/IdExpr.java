@@ -1,8 +1,18 @@
-package com.miwan.interpreter.syntax;
+package com.miwan.interpreter.syntax.ast;
+
+import com.miwan.interpreter.runtime.Environment;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 3/31/2020
+ * <p>
+ * 表示一个标识符
+ */
 
 public class IdExpr extends Node {
 	public IdExpr(String id) {
@@ -15,6 +25,11 @@ public class IdExpr extends Node {
 	@SuppressWarnings("unchecked")
 	public Collection<Node> children() {
 		return (List<Node>) Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public Object eval(Environment env) {
+		return env.getVar(this.id);
 	}
 
 	@Override

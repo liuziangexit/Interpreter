@@ -1,4 +1,4 @@
-package com.miwan.interpreter;
+package com.miwan.interpreter.util;
 
 import java.util.*;
 import java.util.function.Consumer;

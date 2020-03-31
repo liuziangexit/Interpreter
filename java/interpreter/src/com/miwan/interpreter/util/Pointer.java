@@ -1,4 +1,4 @@
-package com.miwan.interpreter;
+package com.miwan.interpreter.util;
 
 public class Pointer<T> {
 	public Pointer(T v) {

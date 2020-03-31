@@ -1,7 +1,17 @@
-package com.miwan.interpreter.syntax;
+package com.miwan.interpreter.syntax.ast;
+
+import com.miwan.interpreter.runtime.Environment;
 
 import java.util.Collection;
 import java.util.List;
+
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 3/31/2020
+ * <p>
+ * 表示一个逗号表达式
+ */
 
 public class CommaExpr extends Node {
 
@@ -15,6 +25,11 @@ public class CommaExpr extends Node {
 	@Override
 	public Collection<Node> children() {
 		return this.subExpressions;
+	}
+
+	@Override
+	public Object eval(Environment env) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

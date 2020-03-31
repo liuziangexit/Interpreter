@@ -1,7 +1,17 @@
-package com.miwan.interpreter.syntax;
+package com.miwan.interpreter.syntax.ast;
+
+import com.miwan.interpreter.runtime.Environment;
 
 import java.util.Collection;
 import java.util.Collections;
+
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 3/31/2020
+ * <p>
+ * 表示一个括号表达式
+ */
 
 public class ParenExpr extends Node {
 
@@ -16,6 +26,11 @@ public class ParenExpr extends Node {
 	@Override
 	public Collection<Node> children() {
 		return Collections.singletonList(this.inner);
+	}
+
+	@Override
+	public Object eval(Environment env) {
+		return this.inner.eval(env);
 	}
 
 	@Override

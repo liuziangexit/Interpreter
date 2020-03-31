@@ -1,10 +1,20 @@
-package com.miwan.interpreter.syntax;
+package com.miwan.interpreter.syntax.ast;
 
-import com.miwan.interpreter.CollectionCombinator;
+import com.miwan.interpreter.runtime.Environment;
+import com.miwan.interpreter.runtime.OperatorDefinition;
+import com.miwan.interpreter.util.CollectionCombinator;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 3/31/2020
+ * <p>
+ * 表示一个函数调用
+ */
 
 public class CallExpr extends Node {
 	public final IdExpr func;
@@ -20,6 +30,16 @@ public class CallExpr extends Node {
 	@Override
 	public Collection<Node> children() {
 		return CollectionCombinator.createFrom(Collections.singletonList(func), args);
+	}
+
+	@Override
+	public Object eval(Environment env) {
+		OperatorDefinition.FunctionInfo impl = OperatorDefinition.functions.get(this.func.id);
+		Object[] args = new Object[this.args.size()];
+		for (int i = 0; i < this.args.size(); i++) {
+			args[i] = this.args.get(i).eval(env);
+		}
+		return impl.calculation.calculate(args);
 	}
 
 	@Override

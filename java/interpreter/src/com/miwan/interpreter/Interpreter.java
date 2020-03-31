@@ -1,8 +1,9 @@
 package com.miwan.interpreter;
 
 import com.miwan.interpreter.lexical.Scanner;
+import com.miwan.interpreter.runtime.Environment;
 import com.miwan.interpreter.runtime.VirtualMachine;
-import com.miwan.interpreter.syntax.Node;
+import com.miwan.interpreter.syntax.ast.Node;
 import com.miwan.interpreter.syntax.Parser;
 
 /**
@@ -33,7 +34,7 @@ public class Interpreter {
 	 */
 	static public Object eval(final String input, VariableSource source) {
 		Node ast = Parser.parse(Scanner.scan(input));
-		return VirtualMachine.eval(ast, source);
+		return VirtualMachine.eval(ast, new Environment(source));
 	}
 
 	@FunctionalInterface
