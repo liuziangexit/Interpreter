@@ -1,6 +1,7 @@
 package com.miwan.interpreter.syntax.ast;
 
 import com.miwan.interpreter.runtime.Environment;
+import com.miwan.interpreter.runtime.TypeMismatchException;
 import com.miwan.interpreter.runtime.TypeSystem;
 
 import java.util.Arrays;

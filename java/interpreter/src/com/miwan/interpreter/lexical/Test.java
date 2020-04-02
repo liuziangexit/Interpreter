@@ -2,6 +2,7 @@ package com.miwan.interpreter.lexical;
 
 import java.util.List;
 
+//词法阶段的单元测试
 public class Test {
 
 	public static void main(String[] args) {

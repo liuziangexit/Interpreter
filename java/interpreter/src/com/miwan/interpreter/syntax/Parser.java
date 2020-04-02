@@ -13,7 +13,7 @@ import java.util.*;
  * @contact liuziang@liuziangexit.com
  * @date 12/18/2019
  * <p>
- * 自顶向下的LL(k)
+ * 自顶向下的LL(k)文法解析器，俗称递归下降
  */
 
 public class Parser {

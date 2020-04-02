@@ -5,12 +5,21 @@ import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.syntax.ast.*;
 import com.miwan.interpreter.syntax.Parser;
 
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 4/2/2020
+ * <p>
+ * Parser和VM的测试用例
+ */
+
 public class Test {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 		//TODO 补全头注释
 		//TODO   3.补全文档
+		//TODO 移除现有配表里的if
 		//FIXME 这些测试用例要参照新文档重新写，确保行为是符合文档的
 		//TODO 强类型检查，比如如果condexpr的cond不能被implicitly convert到boolean就在parse阶段报错了，而不是等到执行的时候才发现情况不对
 		//TODO 规范一下exception，要表达这几个信息1.出错的具体描述（括号不匹配还是多了个逗号啊）2.出错的位置3.出错位置附近的代码段

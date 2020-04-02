@@ -7,7 +7,7 @@ import java.util.function.Function;
  * @contact liuziang@liuziangexit.com
  * @date 3/31/2020
  * <p>
- * 此类用于表示一个(我们语言内的)运算符或函数的实现
+ * 此类用于表示一个运算符或函数的实现
  */
 
 public abstract class FunctionDefinition {

@@ -9,7 +9,7 @@ import java.util.TreeMap;
  * @contact liuziang@liuziangexit.com
  * @date 5/29/2019
  * <p>
- * 此类提供语言内置的函数和运算符
+ * 此类实现语言内置的函数和运算符
  */
 
 public class Builtin {

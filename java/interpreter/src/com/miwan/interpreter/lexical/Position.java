@@ -1,5 +1,13 @@
 package com.miwan.interpreter.lexical;
 
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 4/2/2020
+ * <p>
+ * 表示代码中的一个位置
+ */
+
 public class Position {
 	public Position(int line, int col, int count) {
 		this.line = line;
@@ -46,7 +54,7 @@ public class Position {
 		return "[line=" + line + ", col=" + col + "]";
 	}
 
-	private int line;
-	private int col;
-	private int count;
+	private int line;//行
+	private int col;//该行的第几位
+	private int count;//总计第几位
 }

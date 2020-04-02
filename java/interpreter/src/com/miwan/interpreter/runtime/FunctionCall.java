@@ -11,7 +11,7 @@ import static com.miwan.interpreter.runtime.TypeSystem.builtinConvert;
  * @contact liuziang@liuziangexit.com
  * @date 3/31/2020
  * <p>
- * 此类用于实现(我们语言内的)函数和运算符的调用决议
+ * 此类用于实现函数和运算符的调用决议
  */
 
 public class FunctionCall {
@@ -44,7 +44,7 @@ public class FunctionCall {
 			}
 			if (def == null) {
 				//决议失败
-				throw new CallNotMatchedException(funcName, types(args));
+				throw new MatchCallFailedException(funcName, types(args));
 			}
 		}
 		return def.invoke(args);

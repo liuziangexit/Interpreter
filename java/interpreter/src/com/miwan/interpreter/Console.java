@@ -4,6 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 4/2/2020
+ * <p>
+ * 一个命令行界面，用于测试
+ */
+
 public class Console {
 	static public void main(String[] args) throws IOException {
 		java.io.BufferedReader in = new BufferedReader(new InputStreamReader(System.in));

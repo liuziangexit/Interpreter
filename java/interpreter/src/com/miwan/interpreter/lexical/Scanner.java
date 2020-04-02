@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 
 public class Scanner {
 
+	//人肉自动机
 	static public List<Lexeme> scan(final String src) {
 		final List<Lexeme> result = new ArrayList<>();
 		final StringBuilder currentLex = new StringBuilder();
@@ -61,7 +62,7 @@ public class Scanner {
 						pos.nextColumn();
 					} else if (src.charAt(pos.count()) == '.') {
 						if (dot) {
-							throw new RuntimeException("invalid number at " + tokenBegin);
+							throw new InvalidNumberFormatException("invalid number at " + tokenBegin, src);
 						}
 						dot = true;
 						currentLex.append(src.charAt(pos.count()));
@@ -71,7 +72,7 @@ public class Scanner {
 					}
 				}
 				if (currentLex.charAt(currentLex.length() - 1) == '.') {
-					throw new RuntimeException("invalid number at " + tokenBegin);
+					throw new InvalidNumberFormatException("invalid number at " + tokenBegin, src);
 				}
 				newToken.accept(TokenKind.Number);
 				continue;

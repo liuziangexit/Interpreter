@@ -1,6 +1,5 @@
 package com.miwan.interpreter.runtime;
 
-import com.miwan.interpreter.Interpreter;
 import com.miwan.interpreter.syntax.ast.*;
 
 /**
@@ -8,9 +7,7 @@ import com.miwan.interpreter.syntax.ast.*;
  * @contact liuziang@liuziangexit.com
  * @date 3/31/2020
  * <p>
- * 虚拟机
- * <p>
- * TODO 实现图灵完备
+ * 执行AST的虚拟机
  */
 
 public class VirtualMachine {

@@ -30,12 +30,12 @@ public class Environment {
 				return ((Number) val).intValue();
 			if (val instanceof Long) {
 				if ((Long) val > (long) Integer.MAX_VALUE || (Long) val < (long) Integer.MIN_VALUE)
-					throw new RuntimeException(name + " is not a valid 32 bit integer");
+					throw new VariableSourceException(name + " is not a valid 32 bit integer");
 				return ((Number) val).intValue();
 			}
 			if (val instanceof Float)
 				return ((Number) val).doubleValue();
-			throw new RuntimeException(name + " is neither a number nor a boolean");
+			throw new VariableSourceException(name + " is neither a number nor a boolean");
 		};
 	}
 

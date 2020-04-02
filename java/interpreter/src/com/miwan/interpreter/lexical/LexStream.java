@@ -3,6 +3,14 @@ package com.miwan.interpreter.lexical;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * @author liuziang
+ * @contact liuziang@liuziangexit.com
+ * @date 4/2/2020
+ * <p>
+ * 表示一个词串
+ */
+
 public class LexStream {
 	public LexStream(List<Lexeme> content, String rawContent) {
 		this.content = content;
