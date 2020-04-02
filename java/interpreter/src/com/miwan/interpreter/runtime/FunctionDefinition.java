@@ -17,7 +17,6 @@ public abstract class FunctionDefinition {
 		return new FunctionDefinition(args) {
 			@Override
 			public Object invoke(Object[] args) {
-				//TODO 检查参数类型和隐式转换
 				return body.apply(args);
 			}
 		};

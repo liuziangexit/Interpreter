@@ -1,5 +1,6 @@
 package com.miwan.interpreter;
 
+import com.miwan.interpreter.lexical.LexStream;
 import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.runtime.Environment;
 import com.miwan.interpreter.runtime.VirtualMachine;
@@ -34,7 +35,7 @@ public class Interpreter {
 	 * @throws Exception 如果input不符合STMT的定义，则某些异常可能被抛出
 	 */
 	static public Object eval(final String input, VariableSource source) {
-		Node ast = Parser.parse(Scanner.scan(input));
+		Node ast = Parser.parse(new LexStream(Scanner.scan(input)));
 		return VirtualMachine.eval(ast, new Environment(source));
 	}
 

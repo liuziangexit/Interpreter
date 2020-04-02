@@ -12,7 +12,31 @@ import com.miwan.interpreter.Interpreter;
 
 public class Environment {
 	public Environment(Interpreter.VariableSource varSource) {
-		this.varSource = varSource;
+		//为了实现简单起见，目前语言只支持bool、int和double
+		//那么外部传进来的值如果不是这些类型的话，我们就需要把它们转换成这些类型
+		this.varSource = name -> {
+			if (varSource == null) {
+				throw new VariableSourceException("no VariableSource provided");
+			}
+			Object val = varSource.get(name);
+			if (val == null) {
+				throw new VariableSourceException("could not retrieve the value of \"" + name + "\"");
+			}
+			if (val instanceof Integer || val instanceof Double || val instanceof Boolean)
+				return val;
+			if (val instanceof Byte)
+				return ((Number) val).intValue();
+			if (val instanceof Short)
+				return ((Number) val).intValue();
+			if (val instanceof Long) {
+				if ((Long) val > (long) Integer.MAX_VALUE || (Long) val < (long) Integer.MIN_VALUE)
+					throw new RuntimeException(name + " is not a valid 32 bit integer");
+				return ((Number) val).intValue();
+			}
+			if (val instanceof Float)
+				return ((Number) val).doubleValue();
+			throw new RuntimeException(name + " is neither a number nor a boolean");
+		};
 	}
 
 	public Object getVar(String id) {

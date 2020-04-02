@@ -20,6 +20,8 @@ public class VirtualMachine {
 	}
 
 	static public Object eval(Node node, Environment env) {
+		if (node == null)
+			return null;
 		return node.eval(env);
 	}
 }

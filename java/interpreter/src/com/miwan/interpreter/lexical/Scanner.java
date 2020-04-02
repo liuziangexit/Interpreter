@@ -1,5 +1,8 @@
 package com.miwan.interpreter.lexical;
 
+import com.miwan.interpreter.syntax.BadSyntaxException;
+import com.miwan.interpreter.util.Pointer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -17,49 +20,68 @@ public class Scanner {
 	static public List<Lexeme> scan(final String src) {
 		final List<Lexeme> result = new ArrayList<>();
 		final StringBuilder currentLex = new StringBuilder();
+		Position pos = new Position(0, 0, 0);
+		final Pointer<Position> tokenBegin = new Pointer<>(null);
 		final Consumer<TokenKind> newToken = kind -> {
-			result.add(TokenHelper.createLexeme(currentLex.toString(), kind));
+			result.add(new Lexeme(currentLex.toString(), kind, tokenBegin.v, pos));
 			currentLex.setLength(0);
 		};
 
-		for (int i = 0; i < src.length(); ) {
-			final int tokenBegin = i;
+		for (; pos.count() < src.length(); ) {
+			tokenBegin.v = pos.copy();
 
 			//skip white space
-			if (src.charAt(i) == ' ' || src.charAt(i) == '\t') {
-				i++;
+			if (src.charAt(pos.count()) == ' ' || src.charAt(pos.count()) == '\t') {
+				pos.nextColumn();
+				continue;
+			}
+
+			//skip end of line
+			if (src.charAt(pos.count()) == '\n') {
+				pos.nextLine(1);
+				continue;
+			}
+			if (src.charAt(pos.count()) == '\r') {
+				if (src.length() > pos.count() + 1 && src.charAt(pos.count() + 1) == '\n') {
+					pos.nextLine(2);
+					continue;
+				}
+				pos.nextLine(1);
 				continue;
 			}
 
 			//match Number
-			if (Character.isDigit(src.charAt(i))) {
+			if (Character.isDigit(src.charAt(pos.count()))) {
 				boolean dot = false;
-				currentLex.append(src.charAt(i++));
-				while (i < src.length()) {
-					if (Character.isDigit(src.charAt(i))) {
-						currentLex.append(src.charAt(i++));
-					} else if (src.charAt(i) == '.') {
+				currentLex.append(src.charAt(pos.count()));
+				pos.nextColumn();
+				while (pos.count() < src.length()) {
+					if (Character.isDigit(src.charAt(pos.count()))) {
+						currentLex.append(src.charAt(pos.count()));
+						pos.nextColumn();
+					} else if (src.charAt(pos.count()) == '.') {
 						if (dot) {
-							throw new RuntimeException("invalid number at col " + tokenBegin);
+							throw new RuntimeException("invalid number at " + tokenBegin);
 						}
 						dot = true;
-						currentLex.append(src.charAt(i++));
+						currentLex.append(src.charAt(pos.count()));
+						pos.nextColumn();
 					} else {
 						break;
 					}
 				}
 				if (currentLex.charAt(currentLex.length() - 1) == '.') {
-					throw new RuntimeException("invalid number at col " + tokenBegin);
+					throw new RuntimeException("invalid number at " + tokenBegin);
 				}
 				newToken.accept(TokenKind.Number);
 				continue;
 			}
 
-			if (Character.isLetter(src.charAt(i)) || src.charAt(i) == '_') {
+			if (Character.isLetter(src.charAt(pos.count())) || src.charAt(pos.count()) == '_') {
 				//move i to the end(last char +1) of the current token
-				while (++i < src.length()//
-						&& (Character.isLetterOrDigit(src.charAt(i)) || src.charAt(i) == '_')) ;
-				currentLex.append(src, tokenBegin, i);
+				while (pos.nextColumn() < src.length()//
+						&& (Character.isLetterOrDigit(src.charAt(pos.count())) || src.charAt(pos.count()) == '_')) ;
+				currentLex.append(src, tokenBegin.v.count(), pos.count());
 
 				//match "true"
 				if (currentLex.length() == 4) {
@@ -81,165 +103,162 @@ public class Scanner {
 			}
 
 			//match boolean operators
-			if (match(src, i, '&', '&')) {
-				currentLex.append(src, i, i + 2);
+			if (match(src, pos.count(), '&', '&')) {
+				currentLex.append(src, pos.count(), pos.count() + 2);
+				pos.nextColumn(2);
 				newToken.accept(TokenKind.AndAnd);
-				i += 2;
 				continue;
 			}
-			if (match(src, i, '|', '|')) {
-				currentLex.append(src, i, i + 2);
+			if (match(src, pos.count(), '|', '|')) {
+				currentLex.append(src, pos.count(), pos.count() + 2);
+				pos.nextColumn(2);
 				newToken.accept(TokenKind.OrOr);
-				i += 2;
 				continue;
 			}
-			if (src.charAt(i) == '!') {
-				if (match(src, i + 1, '=')) {
-					currentLex.append(src, i, i + 2);
+			if (src.charAt(pos.count()) == '!') {
+				if (match(src, pos.count() + 1, '=')) {
+					currentLex.append(src, pos.count(), pos.count() + 2);
+					pos.nextColumn(2);
 					newToken.accept(TokenKind.NotEquals);
-					i += 2;
 					continue;
 				}
 				currentLex.append('!');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Not);
-				i++;
 				continue;
 			}
-			if (match(src, i, '=', '=')) {
-				currentLex.append(src, i, i + 2);
+			if (match(src, pos.count(), '=', '=')) {
+				currentLex.append(src, pos.count(), pos.count() + 2);
+				pos.nextColumn(2);
 				newToken.accept(TokenKind.EqualEqual);
-				i += 2;
 				continue;
 			}
-			if (src.charAt(i) == '>') {
-				if (match(src, i + 1, '=')) {
-					currentLex.append(src, i, i + 2);
+			if (src.charAt(pos.count()) == '>') {
+				if (match(src, pos.count() + 1, '=')) {
+					currentLex.append(src, pos.count(), pos.count() + 2);
+					pos.nextColumn(2);
 					newToken.accept(TokenKind.GreaterEquals);
-					i += 2;
 					continue;
 				}
 				currentLex.append('>');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Greater);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '<') {
-				if (match(src, i + 1, '=')) {
-					currentLex.append(src, i, i + 2);
+			if (src.charAt(pos.count()) == '<') {
+				if (match(src, pos.count() + 1, '=')) {
+					currentLex.append(src, pos.count(), pos.count() + 2);
+					pos.nextColumn(2);
 					newToken.accept(TokenKind.LessEquals);
-					i += 2;
 					continue;
 				}
 				currentLex.append('<');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Less);
-				i++;
 				continue;
 			}
 
 			//match arithmetic operators
-			if (src.charAt(i) == '+') {
+			if (src.charAt(pos.count()) == '+') {
 				currentLex.append('+');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Plus);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '-') {
+			if (src.charAt(pos.count()) == '-') {
 				currentLex.append('-');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Minus);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '*') {
+			if (src.charAt(pos.count()) == '*') {
 				currentLex.append('*');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Multiply);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '/') {
+			if (src.charAt(pos.count()) == '/') {
 				currentLex.append('/');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Divide);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '%') {
+			if (src.charAt(pos.count()) == '%') {
 				currentLex.append('%');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Rem);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '^') {
+			if (src.charAt(pos.count()) == '^') {
 				currentLex.append('^');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Pow);
-				i++;
 				continue;
 			}
 
 			//match others
-			if (src.charAt(i) == '?') {
+			if (src.charAt(pos.count()) == '?') {
 				currentLex.append('?');
+				pos.nextColumn();
 				newToken.accept(TokenKind.QMark);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == ':') {
+			if (src.charAt(pos.count()) == ':') {
 				currentLex.append(':');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Colon);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == ',') {
+			if (src.charAt(pos.count()) == ',') {
 				currentLex.append(',');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Comma);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == ';') {
+			if (src.charAt(pos.count()) == ';') {
 				currentLex.append(';');
+				pos.nextColumn();
 				newToken.accept(TokenKind.Sem);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '(') {
+			if (src.charAt(pos.count()) == '(') {
 				currentLex.append('(');
+				pos.nextColumn();
 				newToken.accept(TokenKind.LParen);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == ')') {
+			if (src.charAt(pos.count()) == ')') {
 				currentLex.append(')');
+				pos.nextColumn();
 				newToken.accept(TokenKind.RParen);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '[') {
+			if (src.charAt(pos.count()) == '[') {
 				currentLex.append('[');
+				pos.nextColumn();
 				newToken.accept(TokenKind.LBracket);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == ']') {
+			if (src.charAt(pos.count()) == ']') {
 				currentLex.append(']');
+				pos.nextColumn();
 				newToken.accept(TokenKind.RBracket);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '{') {
+			if (src.charAt(pos.count()) == '{') {
 				currentLex.append('{');
+				pos.nextColumn();
 				newToken.accept(TokenKind.LCurly);
-				i++;
 				continue;
 			}
-			if (src.charAt(i) == '}') {
+			if (src.charAt(pos.count()) == '}') {
 				currentLex.append('}');
+				pos.nextColumn();
 				newToken.accept(TokenKind.RCurly);
-				i++;
 				continue;
-			}
-			if (src.charAt(i) == '$') {
-				throw new RuntimeException("symbol $ is reserved");
 			}
 
-			throw new RuntimeException("can not resolve token at " + tokenBegin);
+			throw new BadSyntaxException("can not resolve token at " + tokenBegin);
 		}
 		return result;
 	}

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static com.miwan.interpreter.runtime.TypeSystem.implicitConvert;
+import static com.miwan.interpreter.runtime.TypeSystem.builtinConvert;
 
 /**
  * @author liuziang
@@ -15,23 +15,6 @@ import static com.miwan.interpreter.runtime.TypeSystem.implicitConvert;
  */
 
 public class FunctionCall {
-
-	/*
-	比较两个参数列表，返回它们之间的决议顺序
-	1.参数少者优先
-	2.顺序比较各个参数，参数类型小者优先(Boolean<Integer<Double)
-
-	若返回true，则表明a应早于b决议；若返回false，则表明a应晚于b决议；
-	 */
-	static public boolean compareArgumentList(Class<?>[] a, Class<?>[] b) {
-		if (a.length < b.length)
-			return true;
-		for (int i = 0; i < a.length; i++) {
-			if (TypeSystem.typePrecedence(a[i]) < TypeSystem.typePrecedence(b[i]))
-				return true;
-		}
-		throw new IllegalArgumentException("they are identical...");
-	}
 
 	//根据函数名和参数类型做mangling
 	static public String mangling(String name, Class<?>[] args) {
@@ -45,33 +28,48 @@ public class FunctionCall {
 		return sb.toString();
 	}
 
+	//进行函数调用
 	static public Object makeCall(String funcName, Object[] args, boolean isOperator) {
 		//精确匹配
 		FunctionDefinition def = Builtin.find(funcName, isOperator, types(args));
 		if (def == null) {
-			//精确匹配失败，进行决议
-			List<FunctionDefinition> candidate = Builtin.find(funcName, isOperator);
-			Object[] convertedArgs = new Object[args.length];
-			for (FunctionDefinition test : candidate) {
-				if (args.length == test.arguments.length) {
-					for (int i = 0; i < args.length; i++) {
-						convertedArgs[i] = implicitConvert(args[i], test.arguments[i]);
-						if (convertedArgs[i] == null)
-							break;
-					}
-					if (Arrays.stream(convertedArgs).allMatch(Objects::nonNull)) {
-						//匹配到兼容的prototype
-						args = convertedArgs;
-						def = test;
+			//精确匹配失败，进行重载决议
+			List<FunctionDefinition> candidates = Builtin.find(funcName, isOperator);
+			if (candidates != null) {
+				def = overloadResolution(candidates, args);
+			}
+			if (def == null) {
+				//决议失败
+				throw new CallNotMatchedException(funcName, types(args));
+			}
+		}
+		return def.invoke(args);
+	}
+
+	/*
+	重载决议
+	传入候选函数和指向参数列表的指针
+
+	如果匹配成功，则返回匹配到的候选函数，并且参数列表将被修改
+	如果匹配失败，则返回null
+	 */
+	static private FunctionDefinition overloadResolution(List<FunctionDefinition> candidates, Object[] args) {
+		Object[] convertedArgs = new Object[args.length];
+		for (FunctionDefinition test : candidates) {
+			if (args.length == test.arguments.length) {
+				for (int i = 0; i < args.length; i++) {
+					convertedArgs[i] = builtinConvert(args[i], test.arguments[i]);
+					if (convertedArgs[i] == null)
 						break;
-					}
+				}
+				if (Arrays.stream(convertedArgs).allMatch(Objects::nonNull)) {
+					//匹配到兼容的prototype
+					System.arraycopy(convertedArgs, 0, args, 0, args.length);
+					return test;
 				}
 			}
 		}
-		if (def == null) {
-			throw new RuntimeException("could not match any prototype");
-		}
-		return def.invoke(args);
+		return null;
 	}
 
 	static private Class<?>[] types(Object[] args) {

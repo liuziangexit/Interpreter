@@ -45,7 +45,7 @@ public class Builtin {
 			functionDefinitions.add(func);
 		} else {
 			for (int i = 0; i < functionDefinitions.size(); i++) {
-				if (FunctionCall.compareArgumentList(func.arguments, functionDefinitions.get(i).arguments)) {
+				if (TypeSystem.compareArgumentList(func.arguments, functionDefinitions.get(i).arguments)) {
 					functionDefinitions.add(i, func);
 					return;
 				}
@@ -63,7 +63,7 @@ public class Builtin {
 			functionDefinitions.add(func);
 		} else {
 			for (int i = 0; i < functionDefinitions.size(); i++) {
-				if (FunctionCall.compareArgumentList(func.arguments, functionDefinitions.get(i).arguments)) {
+				if (TypeSystem.compareArgumentList(func.arguments, functionDefinitions.get(i).arguments)) {
 					functionDefinitions.add(i, func);
 					return;
 				}

@@ -1,8 +1,8 @@
 package com.miwan.interpreter.syntax;
 
+import com.miwan.interpreter.lexical.LexStream;
 import com.miwan.interpreter.runtime.Builtin;
 import com.miwan.interpreter.syntax.ast.*;
-import com.miwan.interpreter.util.Pointer;
 import com.miwan.interpreter.lexical.Lexeme;
 import com.miwan.interpreter.lexical.TokenKind;
 
@@ -18,49 +18,57 @@ import java.util.*;
 
 public class Parser {
 	//return Root Node
-	static public Node parse(final List<Lexeme> lexemes) {
-		return parseImpl(lexemes, new Pointer<>(0), true);
+	static public Node parse(final LexStream lexStream) {
+		Node ast = parseImpl(lexStream, true);
+		if (lexStream.hasNext()) {
+			throw new BadSyntaxException("could not parse tokens after " + lexStream.current());
+		}
+		return ast;
 	}
 
-	static private Node parseImpl(final List<Lexeme> lexemes, Pointer<Integer> cursor, boolean parseBinaryOp) {
-		if (cursor.v >= lexemes.size())
+	static private Node parseImpl(final LexStream lexStream, boolean shouldParseBinaryOp) {
+		if (lexStream.current() == null)
 			return null;
-
 		Node lhs;
-		switch (lexemes.get(cursor.v).kind) {
+		switch (lexStream.current().kind) {
 			case LParen: {
-				cursor.v++;//eat (
-				ParenExpr parenExpr = new ParenExpr(parseImpl(lexemes, cursor, true));
-				if (lexemes.get(cursor.v).kind != TokenKind.RParen)
-					throw new RuntimeException("expected ')'");
-				cursor.v++;  // eat )
+				Lexeme lp = lexStream.eat();//eat (
+				ParenExpr parenExpr = new ParenExpr(parseImpl(lexStream, true));
+				if (!LexStream.test(lexStream.eat(), eat -> eat.kind == TokenKind.RParen))
+					throw new BadSyntaxException(lp + " missing corresponds ')'");
 				lhs = parenExpr;
 			}
 			break;
 			case Identifier: {
-				if (cursor.v + 1 >= lexemes.size() || lexemes.get(cursor.v + 1).kind != TokenKind.LParen) {
-					lhs = new IdExpr(lexemes.get(cursor.v++).text);
+				if (LexStream.test(lexStream.peek(), peek -> peek.kind == TokenKind.LParen)) {
+					lhs = parseCall(lexStream);
 				} else {
-					lhs = parseCall(lexemes, cursor);
+					lhs = new IdExpr(lexStream.eat().text);
 				}
 			}
 			break;
 			case Minus: {
-				if (lexemes.get(cursor.v + 1).kind == TokenKind.Number) {
-					lhs = parseNumber(lexemes, cursor);
+				if (!lexStream.hasNext()) {
+					throw new BadSyntaxException("expression expected after " + lexStream.current());
+				}
+				if (lexStream.peek().kind == TokenKind.Number) {
+					lhs = parseNumber(lexStream);
 				} else {
-					cursor.v++;
-					lhs = new BinaryExpr("*", new NumberExpr(-1), parseImpl(lexemes, cursor, false));
+					Lexeme minusLex = lexStream.eat();//eat -
+					lhs = new BinaryExpr("*", new NumberExpr(-1), //
+							requireNonNull(//
+									parseImpl(lexStream, false), //
+									"unknown error occurs while parsing tokens after " + minusLex));
 				}
 			}
 			break;
 			case Number: {
-				lhs = parseNumber(lexemes, cursor);
+				lhs = parseNumber(lexStream);
 			}
 			break;
 			case True:
 			case False: {
-				Lexeme lexeme = lexemes.get(cursor.v++);
+				Lexeme lexeme = lexStream.eat();
 				if (lexeme.kind == TokenKind.True) {
 					lhs = new BooleanLiteralExpr(true);
 				} else {
@@ -69,8 +77,13 @@ public class Parser {
 			}
 			break;
 			case Not: {
-				cursor.v++;//eat !
-				lhs = new LogicNotExpr(parseImpl(lexemes, cursor, false));
+				if (!lexStream.hasNext())
+					throw new BadSyntaxException("expression expected after " + lexStream.current());
+				Lexeme notLex = lexStream.eat();//eat !
+				lhs = new LogicNotExpr(//
+						requireNonNull(//
+								parseImpl(lexStream, false),//
+								"unknown error occurs while parsing tokens after " + notLex));
 			}
 			break;
 			/*case QMark: {
@@ -81,8 +94,8 @@ public class Parser {
 			default:
 				return null;
 		}
-		while (parseBinaryOp && cursor.v < lexemes.size()) {
-			Node expr = parseBinaryExpr(lexemes, cursor, lhs, Integer.MIN_VALUE);
+		while (shouldParseBinaryOp && lexStream.hasNext()) {
+			Node expr = parseBinaryExpr(lexStream, lhs, Integer.MIN_VALUE);
 			if (expr == lhs)
 				break;
 			lhs = expr;
@@ -90,64 +103,88 @@ public class Parser {
 		return lhs;
 	}
 
-	static private Node parseCall(final List<Lexeme> lexemes, Pointer<Integer> idx) {
-		Lexeme func = lexemes.get(idx.v);
-		idx.v++;//eat function name
+	static private Node parseCall(final LexStream lexStream) {
+		Lexeme func = lexStream.eat();
 		List<Node> argList;
-		if (lexemes.get(idx.v + 1).kind != TokenKind.RParen) {
+		if (!lexStream.hasNext())
+			throw new BadSyntaxException("bad call expression " + func);
+		if (lexStream.peek().kind != TokenKind.RParen) {
 			//parse argument list
 			argList = new ArrayList<>();
-			while (idx.v < lexemes.size() && lexemes.get(idx.v).kind != TokenKind.RParen) {
-				idx.v++;
-				argList.add(parseImpl(lexemes, idx, true));
-			}
+			do {
+				Lexeme eat = lexStream.eat();//eat ( or ,
+				argList.add(//
+						requireNonNull(//
+								parseImpl(lexStream, true), //
+								"unknown error occurs while parsing tokens after " + eat));
+			} while (lexStream.hasNext() && lexStream.current().kind != TokenKind.RParen);
 		} else {
 			//no argument
 			argList = Collections.emptyList();
-			idx.v++;//eat (
+			lexStream.eat();//eat (
 		}
-		if (idx.v >= lexemes.size() || lexemes.get(idx.v).kind != TokenKind.RParen)
-			throw new RuntimeException("expect a ')'");
-		idx.v++;//eat )
+		if (!LexStream.test(lexStream.eat(), eat -> eat.kind == TokenKind.RParen))
+			throw new BadSyntaxException("expect ')' for " + func);
 		return new CallExpr(func.text, argList);
 	}
 
-	static private Node parseNumber(final List<Lexeme> lexemes, Pointer<Integer> idx) {
+	static private Node parseNumber(final LexStream lexStream) {
 		String text;
-		Lexeme lexeme = lexemes.get(idx.v++);
+		Lexeme lexeme = lexStream.eat();
 		if (lexeme.kind == TokenKind.Minus) {
-			text = lexeme.text + lexemes.get(idx.v++).text;
+			text = "-" + lexStream.eat().text;
 		} else {
 			text = lexeme.text;
 		}
 		if (text.contains(".")) {
-			return new NumberExpr(Double.parseDouble(text));
+			double v;
+			try {
+				v = Double.parseDouble(text);
+			} catch (NumberFormatException e) {
+				throw new BadSyntaxException("invalid number format at " + lexeme);
+			}
+			return new NumberExpr(v);
 		} else {
-			return new NumberExpr(Integer.parseInt(text));
+			int v;
+			try {
+				v = Integer.parseInt(text);
+			} catch (NumberFormatException e) {
+				throw new BadSyntaxException("invalid number format at " + lexeme);
+			}
+			return new NumberExpr(v);
 		}
 	}
 
-	static private Node parseBinaryExpr(final List<Lexeme> lexemes, Pointer<Integer> idx, Node lhs, int prevPrecedence) {
-		if (idx.v == lexemes.size())
+	static private Node parseBinaryExpr(final LexStream lexStream, Node lhs, int prevPrecedence) {
+		if (!lexStream.hasNext())
 			return lhs;
-		Lexeme opLex = lexemes.get(idx.v);
+		Lexeme opLex = lexStream.current();
 		Integer opPrd = Builtin.precedence(opLex.text);
 		if (opPrd == null || opPrd < prevPrecedence) {
 			return lhs;
 		}
-		idx.v++;//eat op
-		Node rhs = parseImpl(lexemes, idx, false);
-		if (idx.v < lexemes.size()) {
-			Integer nextOpPrd = Builtin.precedence(lexemes.get(idx.v).text);
+		lexStream.eat();//eat operator
+		Node rhs = requireNonNull(//
+				parseImpl(lexStream, false),//
+				"unknown error occurs while parsing tokens after " + opLex);
+		if (lexStream.hasNext()) {
+			Integer nextOpPrd = Builtin.precedence(lexStream.current().text);
 			//如果下一个token是运算符
 			if (nextOpPrd != null) {
 				if (nextOpPrd > opPrd) {
 					//下一个运算符优先级比当前运算符的高
-					rhs = parseBinaryExpr(lexemes, idx, rhs, nextOpPrd);
+					rhs = parseBinaryExpr(lexStream, rhs, nextOpPrd);
 				}
 			}
 		}
-		return parseBinaryExpr(lexemes, idx, new BinaryExpr(opLex.text, lhs, rhs), opPrd);
+		//FIXME 为什么要递归？
+		return parseBinaryExpr(lexStream, new BinaryExpr(opLex.text, lhs, rhs), opPrd);
+	}
+
+	static private <T extends Node> T requireNonNull(T node, String exceptionMessage) {
+		if (node == null)
+			throw new BadSyntaxException(exceptionMessage);
+		return node;
 	}
 
 }
