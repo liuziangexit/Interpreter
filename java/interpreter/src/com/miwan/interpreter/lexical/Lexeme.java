@@ -19,9 +19,9 @@ public class Lexeme {
 	@Override
 	public String toString() {
 		if (text.length() == 1) {
-			return "{'" + this.text + "' at " + this.begin + "}";
+			return "'" + this.text + "' at " + this.begin;
 		} else {
-			return "{\"" + this.text + "\" at " + this.begin + "}";
+			return "\"" + this.text + "\" at " + this.begin;
 		}
 	}
 
