@@ -6,7 +6,7 @@ public class LexerException extends InterpreterException {
 	public LexerException() {
 	}
 
-	public LexerException(String message) {
-		super(System.lineSeparator() + "An exception is thrown while scanning tokens: " + message);
+	public LexerException(String message, String rawContent) {
+		super("An exception is thrown while scanning tokens: " + message, rawContent);
 	}
 }

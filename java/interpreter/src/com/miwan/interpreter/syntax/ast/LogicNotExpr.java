@@ -31,7 +31,7 @@ public class LogicNotExpr extends Node {
 		Object innerValue = this.inner.eval(env);
 		Boolean o = TypeSystem.builtinConvert(innerValue, Boolean.class);
 		if (o == null) {
-			throw new RuntimeException(this.inner.toString() + " can not be convert to boolean");
+			throw new TypeMismatchException(innerValue + " can not be convert to boolean");
 		}
 		return !o;
 	}

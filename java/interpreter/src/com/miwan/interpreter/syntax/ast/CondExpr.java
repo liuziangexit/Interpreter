@@ -1,6 +1,7 @@
 package com.miwan.interpreter.syntax.ast;
 
 import com.miwan.interpreter.runtime.Environment;
+import com.miwan.interpreter.runtime.TypeSystem;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +34,16 @@ public class CondExpr extends Node {
 
 	@Override
 	public Object eval(Environment env) {
-		throw new UnsupportedOperationException();
+		Object cond = this.cond.eval(env);
+		Boolean condAsBool = TypeSystem.builtinConvert(cond, Boolean.class);
+		if (condAsBool == null) {
+			throw new TypeMismatchException(cond + " can not be converted to boolean");
+		}
+		if (condAsBool) {
+			return this.yes.eval(env);
+		} else {
+			return this.no.eval(env);
+		}
 	}
 
 	@Override

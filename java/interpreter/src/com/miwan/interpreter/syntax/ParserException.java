@@ -6,7 +6,7 @@ public abstract class ParserException extends InterpreterException {
 	public ParserException() {
 	}
 
-	public ParserException(String message) {
-		super(message);
+	public ParserException(String message, String rawContent) {
+		super(message, rawContent);
 	}
 }

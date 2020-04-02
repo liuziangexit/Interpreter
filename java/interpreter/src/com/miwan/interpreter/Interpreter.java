@@ -35,8 +35,12 @@ public class Interpreter {
 	 * @throws Exception 如果input不符合STMT的定义，则某些异常可能被抛出
 	 */
 	static public Object eval(final String input, VariableSource source) {
-		Node ast = Parser.parse(new LexStream(Scanner.scan(input)));
+		Node ast = Parser.parse(new LexStream(Scanner.scan(input), input));
 		return VirtualMachine.eval(ast, new Environment(source));
+	}
+
+	static public Object eval(final String input) {
+		return eval(input, null);
 	}
 
 	@FunctionalInterface

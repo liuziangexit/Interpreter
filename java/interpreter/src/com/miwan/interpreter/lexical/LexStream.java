@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.function.Function;
 
 public class LexStream {
-	public LexStream(List<Lexeme> content) {
+	public LexStream(List<Lexeme> content, String rawContent) {
 		this.content = content;
+		this.rawContent = rawContent;
 	}
 
 	public Lexeme eat() {
@@ -40,11 +41,19 @@ public class LexStream {
 		return false;
 	}
 
+	public String getRawContent() {
+		return rawContent;
+	}
+
 	@Override
 	public String toString() {
-		return current().text;
+		Lexeme current = current();
+		if (current == null)
+			return "";
+		return current.text;
 	}
 
 	private int pos = 0;
 	final private List<Lexeme> content;
+	final private String rawContent;
 }

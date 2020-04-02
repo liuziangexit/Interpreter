@@ -30,6 +30,10 @@ public class FunctionCall {
 
 	//进行函数调用
 	static public Object makeCall(String funcName, Object[] args, boolean isOperator) {
+		for (Object arg : args) {
+			if (arg == null)
+				throw new NullArgumentException("call to function " + funcName + " failed because one of its argument are null");
+		}
 		//精确匹配
 		FunctionDefinition def = Builtin.find(funcName, isOperator, types(args));
 		if (def == null) {

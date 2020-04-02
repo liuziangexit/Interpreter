@@ -2,7 +2,7 @@ package com.miwan.interpreter.syntax;
 
 public class BadSyntaxException extends ParserException {
 
-	public BadSyntaxException(String message) {
-		super("Syntax error checked: " + message);
+	public BadSyntaxException(String message, String rawContent) {
+		super("Syntax error checked: " + message, rawContent);
 	}
 }

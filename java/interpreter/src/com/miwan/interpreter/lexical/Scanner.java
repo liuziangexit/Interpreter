@@ -258,7 +258,7 @@ public class Scanner {
 				continue;
 			}
 
-			throw new BadSyntaxException("can not resolve token at " + tokenBegin);
+			throw new BadSyntaxException("can not resolve token at " + tokenBegin, src);
 		}
 		return result;
 	}

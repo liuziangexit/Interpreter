@@ -7,6 +7,10 @@ public abstract class VirtualMachineException extends InterpreterException {
 	}
 
 	public VirtualMachineException(String message) {
-		super(System.lineSeparator() + "An exception is thrown while executing AST: " + message);
+		super(message);
+	}
+
+	public VirtualMachineException(String message, String rawContent) {
+		super("An exception is thrown while executing AST: " + message, rawContent);
 	}
 }

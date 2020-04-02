@@ -17,25 +17,36 @@ import java.util.*;
  */
 
 public class Parser {
+
+	static private class State {
+		State(boolean shouldParseBinaryOp, boolean shouldParseCondExpr) {
+			this.shouldParseBinaryOp = shouldParseBinaryOp;
+			this.shouldParseCondExpr = shouldParseCondExpr;
+		}
+
+		final boolean shouldParseBinaryOp;
+		final boolean shouldParseCondExpr;
+	}
+
 	//return Root Node
 	static public Node parse(final LexStream lexStream) {
-		Node ast = parseImpl(lexStream, true);
-		if (lexStream.hasNext()) {
-			throw new BadSyntaxException("could not parse tokens after " + lexStream.current());
+		Node ast = parseImpl(lexStream, new State(true, true));
+		if (lexStream.current() != null) {
+			throw new BadSyntaxException("could not parse tokens " + lexStream.current(), lexStream.getRawContent());
 		}
 		return ast;
 	}
 
-	static private Node parseImpl(final LexStream lexStream, boolean shouldParseBinaryOp) {
+	static private Node parseImpl(final LexStream lexStream, State state) {
 		if (lexStream.current() == null)
 			return null;
 		Node lhs;
 		switch (lexStream.current().kind) {
 			case LParen: {
 				Lexeme lp = lexStream.eat();//eat (
-				ParenExpr parenExpr = new ParenExpr(parseImpl(lexStream, true));
+				ParenExpr parenExpr = new ParenExpr(parseImpl(lexStream, new State(true, true)));
 				if (!LexStream.test(lexStream.eat(), eat -> eat.kind == TokenKind.RParen))
-					throw new BadSyntaxException(lp + " missing corresponds ')'");
+					throw new BadSyntaxException(lp + " missing corresponds ')'", lexStream.getRawContent());
 				lhs = parenExpr;
 			}
 			break;
@@ -49,7 +60,7 @@ public class Parser {
 			break;
 			case Minus: {
 				if (!lexStream.hasNext()) {
-					throw new BadSyntaxException("expression expected after " + lexStream.current());
+					throw new BadSyntaxException("expression expected after " + lexStream.current(), lexStream.getRawContent());
 				}
 				if (lexStream.peek().kind == TokenKind.Number) {
 					lhs = parseNumber(lexStream);
@@ -57,8 +68,8 @@ public class Parser {
 					Lexeme minusLex = lexStream.eat();//eat -
 					lhs = new BinaryExpr("*", new NumberExpr(-1), //
 							requireNonNull(//
-									parseImpl(lexStream, false), //
-									"unknown error occurs while parsing tokens after " + minusLex));
+									parseImpl(lexStream, new State(false, true)), //
+									"unknown error occurs while parsing tokens after " + minusLex, lexStream.getRawContent()));
 				}
 			}
 			break;
@@ -78,27 +89,25 @@ public class Parser {
 			break;
 			case Not: {
 				if (!lexStream.hasNext())
-					throw new BadSyntaxException("expression expected after " + lexStream.current());
+					throw new BadSyntaxException("expression expected after " + lexStream.current(), lexStream.getRawContent());
 				Lexeme notLex = lexStream.eat();//eat !
 				lhs = new LogicNotExpr(//
 						requireNonNull(//
-								parseImpl(lexStream, false),//
-								"unknown error occurs while parsing tokens after " + notLex));
+								parseImpl(lexStream, new State(false, false)),//
+								"unknown error occurs while parsing tokens after " + notLex, lexStream.getRawContent()));
 			}
 			break;
-			/*case QMark: {
-				cursor.v++;//eat ?
-				Node node = parseImpl(lexemes, cursor, parseBinaryOp);
-			}
-			break;*/
 			default:
 				return null;
 		}
-		while (shouldParseBinaryOp && lexStream.hasNext()) {
+		while (state.shouldParseBinaryOp && lexStream.hasNext()) {
 			Node expr = parseBinaryExpr(lexStream, lhs, Integer.MIN_VALUE);
 			if (expr == lhs)
 				break;
 			lhs = expr;
+		}
+		if (state.shouldParseCondExpr && LexStream.test(lexStream.current(), current -> current.kind == TokenKind.QMark)) {
+			return parseCondExpr(lexStream, lhs);
 		}
 		return lhs;
 	}
@@ -107,7 +116,7 @@ public class Parser {
 		Lexeme func = lexStream.eat();
 		List<Node> argList;
 		if (!lexStream.hasNext())
-			throw new BadSyntaxException("bad call expression " + func);
+			throw new BadSyntaxException("bad call expression " + func, lexStream.getRawContent());
 		if (lexStream.peek().kind != TokenKind.RParen) {
 			//parse argument list
 			argList = new ArrayList<>();
@@ -115,8 +124,8 @@ public class Parser {
 				Lexeme eat = lexStream.eat();//eat ( or ,
 				argList.add(//
 						requireNonNull(//
-								parseImpl(lexStream, true), //
-								"unknown error occurs while parsing tokens after " + eat));
+								parseImpl(lexStream, new State(true, true)), //
+								"unknown error occurs while parsing tokens after " + eat, lexStream.getRawContent()));
 			} while (lexStream.hasNext() && lexStream.current().kind != TokenKind.RParen);
 		} else {
 			//no argument
@@ -124,7 +133,7 @@ public class Parser {
 			lexStream.eat();//eat (
 		}
 		if (!LexStream.test(lexStream.eat(), eat -> eat.kind == TokenKind.RParen))
-			throw new BadSyntaxException("expect ')' for " + func);
+			throw new BadSyntaxException("expect ')' for " + func, lexStream.getRawContent());
 		return new CallExpr(func.text, argList);
 	}
 
@@ -141,7 +150,7 @@ public class Parser {
 			try {
 				v = Double.parseDouble(text);
 			} catch (NumberFormatException e) {
-				throw new BadSyntaxException("invalid number format at " + lexeme);
+				throw new BadSyntaxException("invalid number format at " + lexeme, lexStream.getRawContent());
 			}
 			return new NumberExpr(v);
 		} else {
@@ -149,7 +158,7 @@ public class Parser {
 			try {
 				v = Integer.parseInt(text);
 			} catch (NumberFormatException e) {
-				throw new BadSyntaxException("invalid number format at " + lexeme);
+				throw new BadSyntaxException("invalid number format at " + lexeme, lexStream.getRawContent());
 			}
 			return new NumberExpr(v);
 		}
@@ -165,8 +174,8 @@ public class Parser {
 		}
 		lexStream.eat();//eat operator
 		Node rhs = requireNonNull(//
-				parseImpl(lexStream, false),//
-				"unknown error occurs while parsing tokens after " + opLex);
+				parseImpl(lexStream, new State(false, false)),//
+				"unknown error occurs while parsing tokens after " + opLex, lexStream.getRawContent());
 		if (lexStream.hasNext()) {
 			Integer nextOpPrd = Builtin.precedence(lexStream.current().text);
 			//如果下一个token是运算符
@@ -177,13 +186,34 @@ public class Parser {
 				}
 			}
 		}
-		//FIXME 为什么要递归？
 		return parseBinaryExpr(lexStream, new BinaryExpr(opLex.text, lhs, rhs), opPrd);
 	}
 
-	static private <T extends Node> T requireNonNull(T node, String exceptionMessage) {
+	static private Node parseCondExpr(final LexStream lexStream, Node cond) {
+		Lexeme qMarkPlace = lexStream.eat();
+		if (qMarkPlace.kind != TokenKind.QMark)
+			throw new BadSyntaxException("unexpected token " + qMarkPlace, lexStream.getRawContent());
+		Node trueBranch = parseImpl(lexStream, new State(true, true));
+		if (trueBranch == null) {
+			throw new BadSyntaxException("could not parse tokens after " + qMarkPlace, lexStream.getRawContent());
+		}
+		Lexeme colonPlace = lexStream.eat();
+		if (colonPlace == null) {
+			throw new BadSyntaxException("expected : for condition expression starts with " + cond, lexStream.getRawContent());
+		}
+		if (colonPlace.kind != TokenKind.Colon) {
+			throw new BadSyntaxException("expected : at " + colonPlace + " for condition expression starts with " + cond, lexStream.getRawContent());
+		}
+		Node falseBranch = parseImpl(lexStream, new State(true, true));
+		if (falseBranch == null) {
+			throw new BadSyntaxException("could not parse tokens after " + colonPlace, lexStream.getRawContent());
+		}
+		return new CondExpr(cond, trueBranch, falseBranch);
+	}
+
+	static private <T extends Node> T requireNonNull(T node, String exceptionMessage, String rawContent) {
 		if (node == null)
-			throw new BadSyntaxException(exceptionMessage);
+			throw new BadSyntaxException(exceptionMessage, rawContent);
 		return node;
 	}
 

@@ -30,6 +30,8 @@ public class ParenExpr extends Node {
 
 	@Override
 	public Object eval(Environment env) {
+		if (this.inner == null)
+			return null;
 		return this.inner.eval(env);
 	}
 
