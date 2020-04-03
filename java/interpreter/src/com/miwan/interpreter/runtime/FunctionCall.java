@@ -66,7 +66,7 @@ public class FunctionCall {
 					if (convertedArgs[i] == null)
 						break;
 				}
-				if (Arrays.stream(convertedArgs).allMatch(Objects::nonNull)) {
+				if (!Arrays.stream(convertedArgs).anyMatch(Objects::isNull)) {
 					//匹配到兼容的prototype
 					System.arraycopy(convertedArgs, 0, args, 0, args.length);
 					return test;

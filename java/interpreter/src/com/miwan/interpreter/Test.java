@@ -17,12 +17,9 @@ public class Test {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
-		//TODO   3.补全文档
-		//TODO 移除现有配表里的if
-		//FIXME 这些测试用例要参照新文档重新写，确保行为是符合文档的
-		//TODO 强类型检查，比如如果condexpr的cond不能被implicitly convert到boolean就在parse阶段报错了，而不是等到执行的时候才发现情况不对
-		//TODO 规范一下exception，要表达这几个信息1.出错的具体描述（括号不匹配还是多了个逗号啊）2.出错的位置3.出错位置附近的代码段
 		//TODO 性能优化
+		//TODO 规范一下exception，要表达这几个信息1.出错的具体描述（括号不匹配还是多了个逗号啊）2.出错的位置3.出错位置附近的代码段
+		//TODO 强类型检查，比如如果condexpr的cond不能被implicitly convert到boolean就在parse阶段报错了，而不是等到执行的时候才发现情况不对
 		//TODO 注释(shouldParseBinOp这样的东西跟优先级有什么关系)
 		//测试三元运算符
 		//普通情形
@@ -65,6 +62,12 @@ public class Test {
 
 		for (int i = 0; i < 1; i++) {
 			// 基本的表达式解析测试
+			if (!String.valueOf(Interpreter.eval("-abs(5)!=(-2^2-1)-3-5?-abs(5)==(-2^2-1)-3-5:-abs(5)==(-2^2-1)-3-5?9710:9711", null))
+					.equals("9710"))
+				throw new RuntimeException();
+			if (!String.valueOf(Interpreter.eval("2+2^3*2", null))
+					.equals("18.0"))
+				throw new RuntimeException();
 			if (!String.valueOf(Interpreter.eval("3+4*2/(1-5)^2^3+(7-9)^2", null))
 					.equals("7.001953125"))
 				throw new RuntimeException();
@@ -225,7 +228,7 @@ public class Test {
 		System.out.println("正确性测试用例通过，耗时:" + String.valueOf(time) + "毫秒");
 
 		time = System.currentTimeMillis();
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 5000000; i++) {
 			Interpreter.eval("3+4*2/(1-5)^2^3+(7-9)^2");
 			Interpreter.eval("3+4*2/(1-5)^2^3");
 			Interpreter.eval("3+4*2/-4^pow(2,3)");

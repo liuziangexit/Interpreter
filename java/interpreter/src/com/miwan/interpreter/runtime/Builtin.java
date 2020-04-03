@@ -1,8 +1,6 @@
 package com.miwan.interpreter.runtime;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * @author liuziang
@@ -32,11 +30,11 @@ public class Builtin {
 		return opPrecedence.get(lex);
 	}
 
-	static private TreeMap<String, FunctionDefinition> mlname2func = new TreeMap<>();
-	static private TreeMap<String, ArrayList<FunctionDefinition>> name2func = new TreeMap<>();
-	static private TreeMap<String, FunctionDefinition> mlname2op = new TreeMap<>();
-	static private TreeMap<String, ArrayList<FunctionDefinition>> name2op = new TreeMap<>();
-	static private TreeMap<String, Integer> opPrecedence = new TreeMap<>();
+	static private final Map<String, FunctionDefinition> mlname2func = new HashMap<>();
+	static private final Map<String, ArrayList<FunctionDefinition>> name2func = new HashMap<>();
+	static private final Map<String, FunctionDefinition> mlname2op = new HashMap<>();
+	static private final Map<String, ArrayList<FunctionDefinition>> name2op = new HashMap<>();
+	static private final Map<String, Integer> opPrecedence = new HashMap<>();
 
 	static private void installFunction(String name, FunctionDefinition func) {
 		Builtin.mlname2func.put(FunctionCall.mangling(name, func.arguments), func);

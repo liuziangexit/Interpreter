@@ -19,6 +19,12 @@ public class Position {
 		return new Position(this.line, this.col, this.count);
 	}
 
+	public void assign(Position pos) {
+		this.line = pos.line;
+		this.col = pos.col;
+		this.count = pos.count;
+	}
+
 	public void nextLine(int c) {
 		col = 0;
 		line++;

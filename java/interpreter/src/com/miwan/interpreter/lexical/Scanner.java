@@ -4,6 +4,7 @@ import com.miwan.interpreter.syntax.BadSyntaxException;
 import com.miwan.interpreter.util.Pointer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -17,19 +18,30 @@ import java.util.function.Consumer;
 
 public class Scanner {
 
+	//TODO 把这里挨个match改掉，改成在map里预先定义好token，然后试map
+
+	static private class TokenTemplate {
+	}
+
+	static private HashMap<String, TokenKind> templates = new HashMap<>();
+
+	static {
+
+	}
+
 	//人肉自动机
 	static public List<Lexeme> scan(final String src) {
-		final List<Lexeme> result = new ArrayList<>();
-		final StringBuilder currentLex = new StringBuilder();
+		final List<Lexeme> result = new ArrayList<>(Math.max(src.length() / 3, 5));//假定平均每3个字一个词
+		final StringBuilder currentLex = new StringBuilder(30);//很少有词长度大于30
 		Position pos = new Position(0, 0, 0);
-		final Pointer<Position> tokenBegin = new Pointer<>(null);
+		final Pointer<Position> tokenBegin = new Pointer<>(new Position(0, 0, 0));
 		final Consumer<TokenKind> newToken = kind -> {
 			result.add(new Lexeme(currentLex.toString(), kind, tokenBegin.v, pos));
 			currentLex.setLength(0);
 		};
 
 		for (; pos.count() < src.length(); ) {
-			tokenBegin.v = pos.copy();
+			tokenBegin.v.assign(pos);
 
 			//skip white space
 			if (src.charAt(pos.count()) == ' ' || src.charAt(pos.count()) == '\t') {

@@ -176,15 +176,19 @@ public class Parser {
 		Node rhs = requireNonNull(//
 				parseImpl(lexStream, new State(false, false)),//
 				"unknown error occurs while parsing tokens after " + opLex, lexStream.getRawContent());
-		if (lexStream.hasNext()) {
+		while (lexStream.current() != null) {
 			Integer nextOpPrd = Builtin.precedence(lexStream.current().text);
 			//如果下一个token是运算符
 			if (nextOpPrd != null) {
 				if (nextOpPrd > opPrd) {
 					//下一个运算符优先级比当前运算符的高
+					//就把当前运算符的rhs当作下一个运算符的lhs
 					rhs = parseBinaryExpr(lexStream, rhs, nextOpPrd);
+					//并且重复这个流程
+					continue;
 				}
 			}
+			break;
 		}
 		return parseBinaryExpr(lexStream, new BinaryExpr(opLex.text, lhs, rhs), opPrd);
 	}
