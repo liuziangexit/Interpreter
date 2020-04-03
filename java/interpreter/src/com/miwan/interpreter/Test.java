@@ -17,7 +17,6 @@ public class Test {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
-		//TODO 补全头注释
 		//TODO   3.补全文档
 		//TODO 移除现有配表里的if
 		//FIXME 这些测试用例要参照新文档重新写，确保行为是符合文档的
