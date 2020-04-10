@@ -228,7 +228,7 @@ public class Test {
 		System.out.println("正确性测试用例通过，耗时:" + String.valueOf(time) + "毫秒");
 
 		time = System.currentTimeMillis();
-		for (int i = 0; i < 5000000; i++) {
+		for (int i = 0; i < 1000000; i++) {
 			Interpreter.eval("3+4*2/(1-5)^2^3+(7-9)^2");
 			Interpreter.eval("3+4*2/(1-5)^2^3");
 			Interpreter.eval("3+4*2/-4^pow(2,3)");
