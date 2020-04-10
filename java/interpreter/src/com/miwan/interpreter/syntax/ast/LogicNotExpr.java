@@ -5,6 +5,7 @@ import com.miwan.interpreter.runtime.TypeMismatchException;
 import com.miwan.interpreter.runtime.TypeSystem;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author liuziang
@@ -23,7 +24,7 @@ public class LogicNotExpr extends Node {
 
 	@Override
 	public Collection<Node> children() {
-		return null;
+		return Collections.singletonList(this.inner);
 	}
 
 	@Override

@@ -1,11 +1,14 @@
 package com.miwan.interpreter;
 
 import com.miwan.interpreter.lexical.LexStream;
+import com.miwan.interpreter.lexical.Lexeme;
 import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.runtime.Environment;
 import com.miwan.interpreter.runtime.VirtualMachine;
 import com.miwan.interpreter.syntax.ast.Node;
 import com.miwan.interpreter.syntax.Parser;
+
+import java.util.List;
 
 /**
  * @author liuziang
@@ -18,24 +21,19 @@ import com.miwan.interpreter.syntax.Parser;
 public class Interpreter {
 
 	/**
-	 * FIXME 此注释已过时
-	 * 文法定义：
-	 * NUM(数字字面量) -> 可带小数的数字
-	 * BOOL(布尔字面量) -> "true" | "false"
-	 * VAR(变量标识符) -> [a-z] | [A-Z] | VARVAR
-	 * OP(运算符) -> + | - | * | / | ^ | C语言里的那些逻辑运算符和比较运算符
-	 * STMT -> NUM | BOOL  | VAR | FUNC | (STMT) | STMT OP STMT
-	 * STMTS -> ε | STMT | STMTS, STMTS
-	 * FUNC(函数调用) -> 函数名(STMTS)
-	 * LANG -> STMT
+	 * 计算在Interpreter/README.txt中给出语言定义的表达式的值
 	 *
-	 * @param input  符合上述定义的STMT的字符串
-	 * @param source 用于获得变量值的functor
-	 * @return 对该字符串计算后的值。如果input不符合STMT的定义，则返回值未定义
-	 * @throws Exception 如果input不符合STMT的定义，则某些异常可能被抛出
+	 * @param input  表达式
+	 * @param source 变量源
+	 * @return 计算该字符串的结果
+	 * @throws InterpreterException 如果输入不符合语言定义，则某些异常可能被抛出
 	 */
-	static public Object eval(final String input, VariableSource source) {
-		Node ast = Parser.parse(new LexStream(Scanner.scan(input), input));
+	static public Object eval(final String input, VariableSource source) throws InterpreterException {
+		//词法分析阶段，产出词串
+		List<Lexeme> scannerResult = Scanner.scan(input);
+		//语法分析阶段，产出AST
+		Node ast = Parser.parse(new LexStream(scannerResult, input));
+		//解释执行阶段，产出结果
 		return VirtualMachine.eval(ast, new Environment(source));
 	}
 

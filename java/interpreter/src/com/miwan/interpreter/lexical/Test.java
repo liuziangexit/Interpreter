@@ -97,6 +97,13 @@ public class Test {
 				|| scan.get(6).kind != TokenKind.RParen)
 			throw new RuntimeException();
 
+		scan = Scanner.scan(">>>=");
+		if (scan.get(0).kind != TokenKind.Greater || scan.get(1).kind != TokenKind.Greater || scan.get(2).kind != TokenKind.GreaterEquals)
+			throw new RuntimeException();
+		scan = Scanner.scan("><>>=");
+		if (scan.get(0).kind != TokenKind.Greater || scan.get(1).kind != TokenKind.Less || scan.get(2).kind != TokenKind.Greater || scan.get(3).kind != TokenKind.GreaterEquals)
+			throw new RuntimeException();
+
 		System.out.println("Great Success!!!");
 	}
 
