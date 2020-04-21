@@ -13,7 +13,7 @@ import java.util.Collections;
  * 表示一个boolean字面量
  */
 
-public class BooleanLiteralExpr extends Node {
+public class BooleanLiteralExpr extends Expression {
 	public BooleanLiteralExpr(boolean value) {
 		this.value = value;
 	}

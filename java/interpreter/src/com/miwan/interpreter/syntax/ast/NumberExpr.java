@@ -13,7 +13,7 @@ import java.util.Collections;
  * 表示一个数字字面量
  */
 
-public class NumberExpr extends Node {
+public class NumberExpr extends Expression {
 	public NumberExpr(Number value) {
 		this.value = value;
 	}

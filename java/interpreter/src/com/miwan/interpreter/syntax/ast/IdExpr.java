@@ -14,7 +14,7 @@ import java.util.List;
  * 表示一个标识符
  */
 
-public class IdExpr extends Node {
+public class IdExpr extends Expression {
 	public IdExpr(String id) {
 		this.id = id;
 	}

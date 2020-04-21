@@ -14,7 +14,7 @@ import java.util.Collection;
  * 表示一个二元运算符
  */
 
-public class BinaryExpr extends Node {
+public class BinaryExpr extends Expression {
 	public String op;
 	public Node lhs, rhs;
 

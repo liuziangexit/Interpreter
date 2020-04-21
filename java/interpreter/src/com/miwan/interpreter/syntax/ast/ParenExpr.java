@@ -13,7 +13,7 @@ import java.util.Collections;
  * 表示一个括号表达式
  */
 
-public class ParenExpr extends Node {
+public class ParenExpr extends Expression {
 
 	public ParenExpr(Node inner) {
 		this.inner = inner;

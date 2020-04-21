@@ -15,7 +15,7 @@ import java.util.Collection;
  * 表示一个条件运算符表达式
  */
 
-public class CondExpr extends Node {
+public class CondExpr extends Expression {
 
 	public Node cond, yes, no;
 

@@ -13,7 +13,7 @@ import java.util.List;
  * 表示一个逗号表达式
  */
 
-public class CommaExpr extends Node {
+public class CommaExpr extends Expression {
 
 	public CommaExpr(List<Node> subExpressions) {
 		this.subExpressions = subExpressions;

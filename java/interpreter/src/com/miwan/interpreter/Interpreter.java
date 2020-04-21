@@ -21,7 +21,7 @@ import java.util.List;
 public class Interpreter {
 
 	/**
-	 * 计算在Interpreter/README.txt中给出语言定义的表达式的值
+	 * 表达式求值
 	 *
 	 * @param input  表达式
 	 * @param source 变量源
@@ -31,7 +31,6 @@ public class Interpreter {
 	static public Object eval(final String input, VariableSource source) throws InterpreterException {
 		List<Lexeme> scannerResult = Scanner.scan(input);
 		Node ast = Parser.parse(new LexStream(scannerResult, input));
-
 		return VirtualMachine.eval(ast, new Environment(source));
 	}
 
@@ -39,6 +38,9 @@ public class Interpreter {
 		return eval(input, null);
 	}
 
+	/**
+	 * @return
+	 */
 	static public Object execute() {
 		return null;
 	}

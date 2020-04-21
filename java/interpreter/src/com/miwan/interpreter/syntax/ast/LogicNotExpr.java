@@ -15,7 +15,7 @@ import java.util.Collections;
  * 表示一个逻辑非表达式
  */
 
-public class LogicNotExpr extends Node {
+public class LogicNotExpr extends Expression {
 	public LogicNotExpr(Node inner) {
 		this.inner = inner;
 	}

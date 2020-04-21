@@ -5,8 +5,8 @@ package com.miwan.interpreter.syntax.ast;
  * @contact liuziang@liuziangexit.com
  * @date 4/21/2020
  * <p>
- * 表示一个Statement
+ * 表示一个Expression
  */
 
-public abstract class Statement extends Node {
+public abstract class Expression extends Statement {
 }

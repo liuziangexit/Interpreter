@@ -16,7 +16,7 @@ import java.util.Collections;
  * 表示一个函数调用
  */
 
-public class CallExpr extends Node {
+public class CallExpr extends Expression {
 	public final IdExpr func;
 	public final ArrayList<Node> args;
 
