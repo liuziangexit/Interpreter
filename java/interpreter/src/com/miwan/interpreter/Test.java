@@ -16,11 +16,7 @@ import com.miwan.interpreter.syntax.Parser;
 public class Test {
 
 	public static void main(String[] args) {
-		long time = System.currentTimeMillis();
-		//TODO 性能优化
 		//TODO 规范一下exception，要表达这几个信息1.出错的具体描述（括号不匹配还是多了个逗号啊）2.出错的位置3.出错位置附近的代码段
-		//TODO 强类型检查，比如如果condexpr的cond不能被implicitly convert到boolean就在parse阶段报错了，而不是等到执行的时候才发现情况不对
-		//TODO 注释(shouldParseBinOp这样的东西跟优先级有什么关系)
 		//测试三元运算符
 		//普通情形
 		if (0 != ((Number) Interpreter.eval("0?1:0")).intValue())
@@ -224,24 +220,7 @@ public class Test {
 					.equals(String.valueOf(true)))
 				throw new RuntimeException();
 		}
-		time = System.currentTimeMillis() - time;
-		System.out.println("正确性测试用例通过，耗时:" + String.valueOf(time) + "毫秒");
 
-		time = System.currentTimeMillis();
-		for (int i = 0; i < 1000000; i++) {
-			Interpreter.eval("3+4*2/(1-5)^2^3+(7-9)^2");
-			Interpreter.eval("3+4*2/(1-5)^2^3");
-			Interpreter.eval("3+4*2/-4^pow(2,3)");
-			Interpreter.eval("-1*-log(5)");
-			Interpreter.eval("3+4*2/(1-5)^pow(2,3)");
-			Interpreter.eval("3+4*2/pow(1-5,2^3)");
-			Interpreter.eval("3+4*2/pow(1-5,pow(2,3))");
-			Interpreter.eval("3+-2^2");
-		}
-
-		time = System.currentTimeMillis() - time;
-		System.out.println("性能测试完成，对8个表达式重复求值100万次，总耗时:" + time + "毫秒，解释每条表达式平均耗时："
-				+ time / 8000000 + "毫秒");
 	}
 
 }

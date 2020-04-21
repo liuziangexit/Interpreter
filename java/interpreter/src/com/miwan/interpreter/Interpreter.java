@@ -29,16 +29,18 @@ public class Interpreter {
 	 * @throws InterpreterException 如果输入不符合语言定义，则某些异常可能被抛出
 	 */
 	static public Object eval(final String input, VariableSource source) throws InterpreterException {
-		//词法分析阶段，产出词串
 		List<Lexeme> scannerResult = Scanner.scan(input);
-		//语法分析阶段，产出AST
 		Node ast = Parser.parse(new LexStream(scannerResult, input));
-		//解释执行阶段，产出结果
+
 		return VirtualMachine.eval(ast, new Environment(source));
 	}
 
 	static public Object eval(final String input) {
 		return eval(input, null);
+	}
+
+	static public Object execute() {
+		return null;
 	}
 
 	@FunctionalInterface
