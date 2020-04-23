@@ -12,13 +12,13 @@ import com.miwan.interpreter.syntax.ast.*;
 
 public class VirtualMachine {
 
-	static public Object eval(Node node) {
+	static public Object eval(Expression node) {
 		return eval(node, null);
 	}
 
-	static public Object eval(Node node, Environment env) {
+	static public Object eval(Expression node, Environment env) {
 		if (node == null)
 			return null;
-		return node.eval(env);
+		return node.execute(env);
 	}
 }

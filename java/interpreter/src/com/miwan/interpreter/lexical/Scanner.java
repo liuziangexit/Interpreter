@@ -129,10 +129,18 @@ public class Scanner {
 				newToken.accept(TokenKind.Not);
 				continue;
 			}
-			if (match(src, pos.count(), '=', '=')) {
-				currentLex.append(src, pos.count(), pos.count() + 2);
-				pos.nextColumn(2);
-				newToken.accept(TokenKind.EqualEqual);
+			if (src.charAt(pos.count()) == '=') {
+				//==
+				if (match(src, pos.count() + 1, '=')) {
+					currentLex.append(src, pos.count(), pos.count() + 2);
+					pos.nextColumn(2);
+					newToken.accept(TokenKind.EqualEqual);
+					continue;
+				}
+				//=
+				currentLex.append(src, pos.count(), pos.count() + 1);
+				pos.nextColumn(1);
+				newToken.accept(TokenKind.Assign);
 				continue;
 			}
 			if (src.charAt(pos.count()) == '>') {

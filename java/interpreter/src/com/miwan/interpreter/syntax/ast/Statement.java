@@ -1,5 +1,7 @@
 package com.miwan.interpreter.syntax.ast;
 
+import com.miwan.interpreter.runtime.Environment;
+
 /**
  * @author liuziang
  * @contact liuziang@liuziangexit.com

@@ -15,6 +15,7 @@ public enum TokenKind {
 	True(Literal, BooleanLiteral),// "true"
 	False(Literal, BooleanLiteral),// "false"
 	Identifier,
+	Assign,//=
 
 	//boolean operator↓
 	AndAnd(Operator, BooleanOperator),// "&&"

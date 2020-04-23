@@ -28,7 +28,7 @@ public class IdExpr extends Expression {
 	}
 
 	@Override
-	public Object eval(Environment env) {
+	public Object execute(Environment env) {
 		return env.getVar(this.id);
 	}
 

@@ -5,6 +5,7 @@ import com.miwan.interpreter.lexical.Lexeme;
 import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.runtime.Environment;
 import com.miwan.interpreter.runtime.VirtualMachine;
+import com.miwan.interpreter.syntax.ast.Expression;
 import com.miwan.interpreter.syntax.ast.Node;
 import com.miwan.interpreter.syntax.Parser;
 
@@ -31,7 +32,7 @@ public class Interpreter {
 	static public Object eval(final String input, VariableSource source) throws InterpreterException {
 		List<Lexeme> scannerResult = Scanner.scan(input);
 		Node ast = Parser.parse(new LexStream(scannerResult, input));
-		return VirtualMachine.eval(ast, new Environment(source));
+		return VirtualMachine.eval((Expression) ast, new Environment(source));
 	}
 
 	static public Object eval(final String input) {
@@ -41,8 +42,11 @@ public class Interpreter {
 	/**
 	 * @return
 	 */
-	static public Object execute() {
-		return null;
+	static public Object execute(String src) {
+		List<Lexeme> scan = Scanner.scan(src);
+		Node ast = Parser.parse(new LexStream(scan, src));
+		Object result = ast.execute(new Environment(id -> null));
+		return result;
 	}
 
 	@FunctionalInterface

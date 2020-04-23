@@ -5,6 +5,10 @@ import com.miwan.interpreter.lexical.Scanner;
 import com.miwan.interpreter.syntax.ast.*;
 import com.miwan.interpreter.syntax.Parser;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 /**
  * @author liuziang
  * @contact liuziang@liuziangexit.com
@@ -32,10 +36,10 @@ public class Test {
 		if (!(ss.cond instanceof BooleanLiteralExpr)) {
 			throw new RuntimeException();
 		}
-		if ((Integer) ss.yes.eval(null) != 1) {
+		if ((Integer) ss.yes.execute(null) != 1) {
 			throw new RuntimeException();
 		}
-		if ((Integer) ss.no.eval(null) != 2) {
+		if ((Integer) ss.no.execute(null) != 2) {
 			throw new RuntimeException();
 		}
 		//嵌套情形
@@ -221,6 +225,17 @@ public class Test {
 				throw new RuntimeException();
 		}
 
+		String src = null;
+		try {
+			byte[] bytes = Files.readAllBytes(Paths.get("src/test.script"));
+			src = new String(bytes);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		Object execute = Interpreter.execute(src);
+
+		System.out.println("Great Success!!!");
 	}
 
 }

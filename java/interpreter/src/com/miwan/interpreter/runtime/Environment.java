@@ -2,6 +2,9 @@ package com.miwan.interpreter.runtime;
 
 import com.miwan.interpreter.Interpreter;
 
+import java.util.Stack;
+import java.util.TreeMap;
+
 /**
  * @author liuziang
  * @contact liuziang@liuziangexit.com
@@ -37,11 +40,36 @@ public class Environment {
 				return ((Number) val).doubleValue();
 			throw new VariableSourceException(name + " is neither a number nor a boolean");
 		};
+		this.scope = new Stack<>();
+	}
+
+	public boolean declVar(String id, Object val) {
+		if (this.varSource.get(id) != null)
+			throw new RuntimeException();
+		return this.scope.peek().putIfAbsent(id, val) == null;
 	}
 
 	public Object getVar(String id) {
-		return varSource.get(id);
+		Object o = varSource.get(id);
+		if (o != null)
+			return o;
+		return this.scope.peek().get(id);
 	}
 
+	public Object setVar(String id, Object val) {
+		if (this.varSource.get(id) != null)
+			throw new RuntimeException();
+		return this.scope.peek().put(id, val);
+	}
+
+	public void enterScope() {
+		scope.push(new TreeMap<>());
+	}
+
+	public void quitScope() {
+		scope.pop();
+	}
+
+	private final Stack<TreeMap<String, Object>> scope;
 	private final Interpreter.VariableSource varSource;
 }

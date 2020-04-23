@@ -4,9 +4,9 @@ import com.miwan.interpreter.runtime.Environment;
 import com.miwan.interpreter.runtime.FunctionCall;
 import com.miwan.interpreter.util.CollectionCombinator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author liuziang
@@ -18,25 +18,26 @@ import java.util.Collections;
 
 public class CallExpr extends Expression {
 	public final IdExpr func;
-	public final ArrayList<Node> args;
+	public final List<Expression> args;
 
-	public CallExpr(String func, Collection<Node> args) {
+	public CallExpr(String func, List<Expression> args) {
 		this.func = new IdExpr(func);
-		this.args = new ArrayList<>(args);
+		this.args = args;
 		this.func.parent = this;
 		args.forEach(a -> a.parent = this);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Node> children() {
-		return CollectionCombinator.createFrom(Collections.singletonList(func), args);
+		return CollectionCombinator.createFrom(Collections.singletonList(func), (Collection<Node>) (Object) args);
 	}
 
 	@Override
-	public Object eval(Environment env) {
+	public Object execute(Environment env) {
 		Object[] args = new Object[this.args.size()];
 		for (int i = 0; i < this.args.size(); i++) {
-			args[i] = this.args.get(i).eval(env);
+			args[i] = ((Expression) this.args.get(i)).execute(env);
 		}
 		return FunctionCall.makeCall(this.func.id, args, false);
 	}

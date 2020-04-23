@@ -17,9 +17,9 @@ import java.util.Collection;
 
 public class CondExpr extends Expression {
 
-	public Node cond, yes, no;
+	public Expression cond, yes, no;
 
-	public CondExpr(Node cond, Node yes, Node no) {
+	public CondExpr(Expression cond, Expression yes, Expression no) {
 		this.cond = cond;
 		this.yes = yes;
 		this.no = no;
@@ -34,16 +34,16 @@ public class CondExpr extends Expression {
 	}
 
 	@Override
-	public Object eval(Environment env) {
-		Object cond = this.cond.eval(env);
+	public Object execute(Environment env) {
+		Object cond = this.cond.execute(env);
 		Boolean condAsBool = TypeSystem.builtinConvert(cond, Boolean.class);
 		if (condAsBool == null) {
 			throw new TypeMismatchException(cond + " can not be converted to boolean");
 		}
 		if (condAsBool) {
-			return this.yes.eval(env);
+			return this.yes.execute(env);
 		} else {
-			return this.no.eval(env);
+			return this.no.execute(env);
 		}
 	}
 

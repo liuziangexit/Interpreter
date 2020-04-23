@@ -26,7 +26,7 @@ public class NumberExpr extends Expression {
 	}
 
 	@Override
-	public Object eval(Environment env) {
+	public Object execute(Environment env) {
 		return this.value;
 	}
 

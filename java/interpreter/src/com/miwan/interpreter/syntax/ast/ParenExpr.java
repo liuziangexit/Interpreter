@@ -15,13 +15,13 @@ import java.util.Collections;
 
 public class ParenExpr extends Expression {
 
-	public ParenExpr(Node inner) {
+	public ParenExpr(Expression inner) {
 		this.inner = inner;
 		if (inner != null)
 			inner.parent = this;
 	}
 
-	public Node inner;
+	public Expression inner;
 
 	@Override
 	public Collection<Node> children() {
@@ -29,10 +29,10 @@ public class ParenExpr extends Expression {
 	}
 
 	@Override
-	public Object eval(Environment env) {
+	public Object execute(Environment env) {
 		if (this.inner == null)
 			return null;
-		return this.inner.eval(env);
+		return this.inner.execute(env);
 	}
 
 	@Override

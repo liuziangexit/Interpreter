@@ -16,11 +16,11 @@ import java.util.Collections;
  */
 
 public class LogicNotExpr extends Expression {
-	public LogicNotExpr(Node inner) {
+	public LogicNotExpr(Expression inner) {
 		this.inner = inner;
 	}
 
-	public final Node inner;
+	public final Expression inner;
 
 	@Override
 	public Collection<Node> children() {
@@ -28,8 +28,8 @@ public class LogicNotExpr extends Expression {
 	}
 
 	@Override
-	public Object eval(Environment env) {
-		Object innerValue = this.inner.eval(env);
+	public Object execute(Environment env) {
+		Object innerValue = this.inner.execute(env);
 		Boolean o = TypeSystem.builtinConvert(innerValue, Boolean.class);
 		if (o == null) {
 			throw new TypeMismatchException(innerValue + " can not be convert to boolean");

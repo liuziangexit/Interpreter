@@ -16,9 +16,9 @@ import java.util.Collection;
 
 public class BinaryExpr extends Expression {
 	public String op;
-	public Node lhs, rhs;
+	public Expression lhs, rhs;
 
-	public BinaryExpr(String op, Node lhs, Node rhs) {
+	public BinaryExpr(String op, Expression lhs, Expression rhs) {
 		this.op = op;
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -32,8 +32,8 @@ public class BinaryExpr extends Expression {
 	}
 
 	@Override
-	public Object eval(Environment env) {
-		return FunctionCall.makeCall(this.op, new Object[]{this.lhs.eval(env), this.rhs.eval(env)}, true);
+	public Object execute(Environment env) {
+		return FunctionCall.makeCall(this.op, new Object[]{this.lhs.execute(env), this.rhs.execute(env)}, true);
 	}
 
 	@Override

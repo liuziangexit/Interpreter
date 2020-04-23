@@ -22,9 +22,13 @@ public abstract class Node {
 		this.parent = parent;
 	}
 
+	abstract public Object execute(Environment env);
+
 	abstract public Collection<Node> children();
 
-	abstract public Object eval(Environment env);
+	public Expression asExpr() {
+		return (Expression) this;
+	}
 
 	public Node parent;
 
