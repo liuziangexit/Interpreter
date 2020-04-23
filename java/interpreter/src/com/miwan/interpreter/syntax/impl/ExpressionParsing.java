@@ -14,14 +14,18 @@ import java.util.List;
 
 public class ExpressionParsing {
 
-	static public Expression parse(final LexStream lexStream, Parser.State state) {
+	static public Expression parse(final LexStream lexStream) {
+		return parse(lexStream, new Parser.State(true, true));
+	}
+
+	static private Expression parse(final LexStream lexStream, Parser.State state) {
 		if (lexStream.current() == null)
 			return null;
 		Expression parsed;
 		switch (lexStream.current().kind) {
 			case LParen: {
 				Lexeme lp = lexStream.eat();//eat (
-				ParenExpr parenExpr = new ParenExpr(parse(lexStream, new Parser.State(true, true, false)));
+				ParenExpr parenExpr = new ParenExpr(parse(lexStream));
 				if (!LexStream.test(lexStream.eat(), eat -> eat.kind == TokenKind.RParen))
 					throw new BadSyntaxException(lp + " missing corresponds ')'", lexStream.getRawContent());
 				parsed = parenExpr;
@@ -45,7 +49,7 @@ public class ExpressionParsing {
 					Lexeme minusLex = lexStream.eat();//eat -
 					parsed = new BinaryExpr("*", new NumberExpr(-1), //
 							requireNonNull(//
-									parse(lexStream, new Parser.State(false, true, false)), //
+									parse(lexStream, new Parser.State(false, true)), //
 									"unknown error occurs while parsing tokens after " + minusLex, lexStream.getRawContent()));
 				}
 			}
@@ -70,7 +74,7 @@ public class ExpressionParsing {
 				Lexeme notLex = lexStream.eat();//eat !
 				parsed = new LogicNotExpr(//
 						requireNonNull(//
-								parse(lexStream, new Parser.State(false, false, false)),//
+								parse(lexStream, new Parser.State(false, false)),//
 								"unknown error occurs while parsing tokens after " + notLex, lexStream.getRawContent()));
 			}
 			break;
@@ -102,7 +106,7 @@ public class ExpressionParsing {
 				Lexeme eat = lexStream.eat();//eat ( or ,
 				argList.add(//
 						requireNonNull(//
-								parse(lexStream, new Parser.State(true, true, false)), //
+								parse(lexStream), //
 								"unknown error occurs while parsing tokens after " + eat, lexStream.getRawContent())
 				);
 			} while (lexStream.hasNext() && lexStream.current().kind != TokenKind.RParen);
@@ -153,7 +157,7 @@ public class ExpressionParsing {
 		}
 		lexStream.eat();//eat operator
 		Expression rhs = requireNonNull(//
-				parse(lexStream, new Parser.State(false, false, false)),//
+				parse(lexStream, new Parser.State(false, false)),//
 				"unknown error occurs while parsing tokens after " + opLex, lexStream.getRawContent());
 		while (lexStream.current() != null) {
 			Integer nextOpPrd = Builtin.precedence(lexStream.current().text);
@@ -176,7 +180,7 @@ public class ExpressionParsing {
 		Lexeme qMarkPlace = lexStream.eat();
 		if (qMarkPlace.kind != TokenKind.QMark)
 			throw new BadSyntaxException("unexpected token " + qMarkPlace, lexStream.getRawContent());
-		Expression trueBranch = parse(lexStream, new Parser.State(true, true, false));
+		Expression trueBranch = parse(lexStream);
 		if (trueBranch == null) {
 			throw new BadSyntaxException("could not parse tokens after " + qMarkPlace, lexStream.getRawContent());
 		}
@@ -187,7 +191,7 @@ public class ExpressionParsing {
 		if (colonPlace.kind != TokenKind.Colon) {
 			throw new BadSyntaxException("expected : at " + colonPlace + " for condition expression starts with " + cond, lexStream.getRawContent());
 		}
-		Expression falseBranch = parse(lexStream, new Parser.State(true, true, false));
+		Expression falseBranch = parse(lexStream);
 		if (falseBranch == null) {
 			throw new BadSyntaxException("could not parse tokens after " + colonPlace, lexStream.getRawContent());
 		}

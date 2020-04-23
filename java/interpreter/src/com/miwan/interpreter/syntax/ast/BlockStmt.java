@@ -14,7 +14,11 @@ import java.util.List;
  */
 
 public class BlockStmt extends Statement {
-	List<Node> subStmts;
+	public final List<Statement> statements;
+
+	public BlockStmt(List<Statement> subStmts) {
+		this.statements = subStmts;
+	}
 
 	@Override
 	public Object execute(Environment env) {
@@ -22,8 +26,9 @@ public class BlockStmt extends Statement {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Collection<Node> children() {
-		return this.subStmts;
+		return (Collection<Node>) (Object) this.statements;
 	}
 
 }

@@ -1,11 +1,9 @@
 package com.miwan.interpreter.syntax;
 
 import com.miwan.interpreter.lexical.LexStream;
-import com.miwan.interpreter.runtime.Builtin;
 import com.miwan.interpreter.syntax.ast.*;
 import com.miwan.interpreter.lexical.Lexeme;
-import com.miwan.interpreter.lexical.TokenKind;
-import com.miwan.interpreter.syntax.impl.ExpressionParsing;
+import com.miwan.interpreter.syntax.impl.StatementParsing;
 
 import java.util.*;
 
@@ -20,24 +18,18 @@ import java.util.*;
 public class Parser {
 
 	static public class State {
-		public State(boolean shouldParseBinaryOp, boolean shouldParseCondExpr, boolean shouldParseSem) {
+		public State(boolean shouldParseBinaryOp, boolean shouldParseCondExpr) {
 			this.shouldParseBinaryOp = shouldParseBinaryOp;
 			this.shouldParseCondExpr = shouldParseCondExpr;
-			this.shouldParseSem = shouldParseSem;
 		}
 
 		final public boolean shouldParseBinaryOp;
 		final public boolean shouldParseCondExpr;
-		final public boolean shouldParseSem;
 	}
 
 	//return Root Node
 	static public Node parse(final LexStream lexStream) {
-		Node ast = ExpressionParsing.parse(lexStream, new State(true, true, true));
-		if (lexStream.current() != null) {
-			throw new BadSyntaxException("could not parse tokens " + lexStream.current(), lexStream.getRawContent());
-		}
-		return ast;
+		return StatementParsing.parseBlock(lexStream, false);
 	}
 
 }

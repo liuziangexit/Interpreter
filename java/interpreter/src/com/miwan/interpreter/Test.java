@@ -8,6 +8,10 @@ import com.miwan.interpreter.syntax.Parser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author liuziang
@@ -20,6 +24,7 @@ import java.nio.file.Paths;
 public class Test {
 
 	public static void main(String[] args) {
+
 		//TODO 规范一下exception，要表达这几个信息1.出错的具体描述（括号不匹配还是多了个逗号啊）2.出错的位置3.出错位置附近的代码段
 		//测试三元运算符
 		//普通情形
@@ -232,6 +237,8 @@ public class Test {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+
 
 		Object execute = Interpreter.execute(src);
 
