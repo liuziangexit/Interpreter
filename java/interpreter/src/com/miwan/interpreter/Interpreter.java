@@ -50,6 +50,10 @@ public class Interpreter {
 		return environment.retrieveReturned();
 	}
 
+	static public String execute2(String src) {
+		return String.valueOf(execute(src));
+	}
+
 	@FunctionalInterface
 	public interface VariableSource {
 		Object get(String varName);

@@ -52,6 +52,15 @@ public class Scanner {
 				continue;
 			}
 
+			if (src.charAt(pos.count()) == '`') {
+				do {
+					pos.nextColumn();
+				}
+				while (src.length() > pos.count() && src.charAt(pos.count()) != '`');
+				pos.nextColumn();
+				continue;
+			}
+
 			//match Number
 			if (Character.isDigit(src.charAt(pos.count()))) {
 				boolean dot = false;
