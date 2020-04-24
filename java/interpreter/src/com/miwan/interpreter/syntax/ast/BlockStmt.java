@@ -25,7 +25,7 @@ public class BlockStmt extends Statement {
 		env.enterScope();
 		for (Statement stmt : this.statements) {
 			stmt.execute(env);
-			if (stmt instanceof ReturnStatement) {
+			if (env.hasReturned()) {
 				break;
 			}
 		}

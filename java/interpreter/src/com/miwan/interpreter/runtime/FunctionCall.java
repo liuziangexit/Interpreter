@@ -42,10 +42,10 @@ public class FunctionCall {
 			if (candidates != null) {
 				def = overloadResolution(candidates, args);
 			}
-			if (def == null) {
-				//决议失败
-				throw new MatchCallFailedException(funcName, types(args));
-			}
+		}
+		//匹配User defined function
+		if (def == null) {
+			def = UserDefined.find(funcName);
 		}
 		return def.invoke(args);
 	}

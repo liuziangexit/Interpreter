@@ -47,7 +47,7 @@ public class Interpreter {
 		Node ast = Parser.parse(new LexStream(scan, src));
 		Environment environment = new Environment(id -> null);
 		ast.execute(environment);
-		return environment.returned;
+		return environment.retrieveReturned();
 	}
 
 	@FunctionalInterface

@@ -2,8 +2,10 @@ package com.miwan.interpreter.runtime;
 
 import com.miwan.interpreter.Interpreter;
 
+import java.util.Optional;
 import java.util.Stack;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 /**
  * @author liuziang
@@ -53,13 +55,23 @@ public class Environment {
 		Object o = varSource.get(id);
 		if (o != null)
 			return o;
-		return this.scope.peek().get(id);
+		for (int i = this.scope.size() - 1; i >= 0; i--) {
+			if (this.scope.elementAt(i).containsKey(id)) {
+				return this.scope.elementAt(i).get(id);
+			}
+		}
+		return null;
 	}
 
 	public Object setVar(String id, Object val) {
 		if (this.varSource.get(id) != null)
 			throw new RuntimeException();
-		return this.scope.peek().put(id, val);
+		for (int i = this.scope.size() - 1; i >= 0; i--) {
+			if (this.scope.elementAt(i).containsKey(id)) {
+				return this.scope.elementAt(i).put(id, val);
+			}
+		}
+		throw new RuntimeException("no var named " + id);
 	}
 
 	public void enterScope() {
@@ -70,8 +82,25 @@ public class Environment {
 		scope.pop();
 	}
 
+	public boolean hasReturned() {
+		return returned != null;
+	}
 
-	public Object returned;
+	public void returnValue(Object val) {
+		if (hasReturned())
+			throw new RuntimeException("another returned value is hold");
+		this.returned = val;
+	}
+
+	public Object retrieveReturned() {
+		if (returned == null)
+			throw new RuntimeException("no returned value are waiting");
+		Object tmp = returned;
+		returned = null;
+		return tmp;
+	}
+
+	private Object returned = null;
 	private final Stack<TreeMap<String, Object>> scope;
 	private final Interpreter.VariableSource varSource;
 }

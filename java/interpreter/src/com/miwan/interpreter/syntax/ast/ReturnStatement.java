@@ -15,7 +15,7 @@ public class ReturnStatement extends Statement {
 
 	@Override
 	public Object execute(Environment env) {
-		env.returned = expr.execute(env);
+		env.returnValue(expr.execute(env));
 		return null;
 	}
 

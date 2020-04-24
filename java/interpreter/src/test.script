@@ -1,7 +1,10 @@
-var a, b = 1, c = 9.2 + 9.8;
-a = b + c;
-{
-  var a = 0;
-  a = 1;
+func fibonacci(n) {
+    if(n == 0)
+        return 0;
+    else if(n == 1)
+      return 1;
+   else
+      return fibonacci(n - 1) + fibonacci(n - 2);
 }
-return a;
+
+return fibonacci(8);
