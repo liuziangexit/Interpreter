@@ -23,7 +23,7 @@ public class Environment {
 			}
 			Object val = varSource.get(name);
 			if (val == null) {
-				throw new VariableSourceException("could not retrieve the value of \"" + name + "\"");
+				return null;
 			}
 			if (val instanceof Integer || val instanceof Double || val instanceof Boolean)
 				return val;
@@ -70,6 +70,8 @@ public class Environment {
 		scope.pop();
 	}
 
+
+	public Object returned;
 	private final Stack<TreeMap<String, Object>> scope;
 	private final Interpreter.VariableSource varSource;
 }

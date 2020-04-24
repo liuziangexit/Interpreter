@@ -45,8 +45,9 @@ public class Interpreter {
 	static public Object execute(String src) {
 		List<Lexeme> scan = Scanner.scan(src);
 		Node ast = Parser.parse(new LexStream(scan, src));
-		Object result = ast.execute(new Environment(id -> null));
-		return result;
+		Environment environment = new Environment(id -> null);
+		ast.execute(environment);
+		return environment.returned;
 	}
 
 	@FunctionalInterface

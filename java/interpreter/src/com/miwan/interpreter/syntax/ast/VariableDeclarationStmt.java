@@ -17,7 +17,13 @@ public class VariableDeclarationStmt extends Statement {
 	@Override
 	public Object execute(Environment env) {
 		for (Map.Entry<IdExpr, Expression> v : this.initList) {
-			if (env.declVar(v.getKey().id, v.getValue().execute(env)))
+			Object initVal;
+			if (v.getValue() != null) {
+				initVal = v.getValue().execute(env);
+			} else {
+				initVal = null;
+			}
+			if (!env.declVar(v.getKey().id, initVal))
 				throw new RuntimeException("could not declare variable " + v.getKey().id + " in current scope");
 		}
 		return null;

@@ -22,6 +22,14 @@ public class BlockStmt extends Statement {
 
 	@Override
 	public Object execute(Environment env) {
+		env.enterScope();
+		for (Statement stmt : this.statements) {
+			stmt.execute(env);
+			if (stmt instanceof ReturnStatement) {
+				break;
+			}
+		}
+		env.quitScope();
 		return null;
 	}
 
