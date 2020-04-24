@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 public class liuziangDotCom {
 	//port
@@ -25,19 +26,29 @@ public class liuziangDotCom {
 					InputStream readStream = client.getInputStream();
 					OutputStream writeStream = client.getOutputStream();
 
+					Consumer<String> send = s -> {
+						byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+						try {
+							writeStream.write(i32s(bytes.length));
+							writeStream.write(bytes);
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					};
+
 					while (true) {
 						//read the body length
-						ByteBuffer length = ByteBuffer.wrap(new byte[4]);
-						if (readStream.read(length.array()) != 4)
-							continue;
-						final int messageLength = length.getInt();
+						byte[] length = new byte[4];
+						if (readStream.read(length) != 4)
+							break;
+						final int messageLength = i32d(length);
 						if (messageLength > 2048) {
-							writeStream.write("code length too long".getBytes(StandardCharsets.UTF_8));
-							continue;
+							send.accept("code length too long");
+							break;
 						}
 						if (messageLength == 0) {
-							writeStream.write("invalid code length".getBytes(StandardCharsets.UTF_8));
-							continue;
+							send.accept("invalid code length");
+							break;
 						}
 
 						//read body
@@ -52,10 +63,15 @@ public class liuziangDotCom {
 
 						//execute code
 						final String srcAsString = new String(src, StandardCharsets.UTF_8);
-						String execResult = String.valueOf(Interpreter.execute(srcAsString));
-
+						Object executeResult;
+						try {
+							executeResult = Interpreter.execute(srcAsString);
+						} catch (Exception ex) {
+							send.accept(ex.toString());
+							break;
+						}
 						//send execution result
-						writeStream.write(execResult.getBytes(StandardCharsets.UTF_8));
+						send.accept(executeResult.toString());
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -68,5 +84,21 @@ public class liuziangDotCom {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	// serialization 32 bit integer number to bytes
+	static private byte[] i32s(int i) {
+		byte[] result = new byte[4];
+		for (int f = 0; f < 4; f++)
+			result[f] = (byte) (i >>> ((3 - f) * 8));
+		return result;
+	}
+
+	// deserialization 32 bit integer number from bytes
+	static private int i32d(byte[] i) {
+		int result = 0;
+		for (int f = 0; f < 4; f++)
+			result |= ((0xFF & (int) i[f]) << ((3 - f) * 8));
+		return result;
 	}
 }
