@@ -15,7 +15,7 @@ public class liuziangDotCom {
 	static public void main(String[] args) {
 		ServerSocket listener = null;
 		try {
-			listener = new ServerSocket(Integer.parseInt(args[0]), 1, Inet4Address.getLocalHost());
+			listener = new ServerSocket(Integer.parseInt(args[0]), 1, Inet4Address.getByName("localhost"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
