@@ -45,11 +45,11 @@ public class liuziangDotCom {
 							break;
 						final int messageLength = i32d(length);
 						if (messageLength > 65535) {
-							send.accept("code length too long");
+							send.accept("code length too long(" + messageLength + ")");
 							break;
 						}
-						if (messageLength == 0) {
-							send.accept("invalid code length");
+						if (messageLength <= 0) {
+							send.accept("invalid code length(" + messageLength + ")");
 							break;
 						}
 
