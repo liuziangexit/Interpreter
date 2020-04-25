@@ -8,6 +8,7 @@ import com.miwan.interpreter.syntax.ast.*;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class StatementParsing {
@@ -118,21 +119,27 @@ public class StatementParsing {
 		if (!LexStream.test(lexStream.eat(), e -> e.kind == TokenKind.LParen)) {
 			throw new BadSyntaxException("bad function declaration", lexStream.getRawContent());
 		}
-		ArrayList<IdExpr> parameters = new ArrayList<>();
-		do {
-			Lexeme id = lexStream.eat();
-			if (id == null || id.kind != TokenKind.Identifier)
-				throw new BadSyntaxException("bad parameter list", lexStream.getRawContent());
-			parameters.add(new IdExpr(id.text));
-			Lexeme next = lexStream.current();
-			if (LexStream.test(next, c -> c.kind == TokenKind.Comma)) {
-				lexStream.eat();
-			} else {
-				break;
+		List<IdExpr> parameters;
+		if (LexStream.test(lexStream.current(), c -> c.kind == TokenKind.RParen)) {
+			parameters = Collections.emptyList();
+			lexStream.eat();
+		} else {
+			parameters = new ArrayList<>();
+			do {
+				Lexeme id = lexStream.eat();
+				if (id == null || id.kind != TokenKind.Identifier)
+					throw new BadSyntaxException("bad parameter list", lexStream.getRawContent());
+				parameters.add(new IdExpr(id.text));
+				Lexeme next = lexStream.current();
+				if (LexStream.test(next, c -> c.kind == TokenKind.Comma)) {
+					lexStream.eat();
+				} else {
+					break;
+				}
+			} while (true);
+			if (!LexStream.test(lexStream.eat(), c -> c.kind == TokenKind.RParen)) {
+				throw new BadSyntaxException("')' expected", lexStream.getRawContent());
 			}
-		} while (true);
-		if (!LexStream.test(lexStream.eat(), c -> c.kind == TokenKind.RParen)) {
-			throw new BadSyntaxException("')' expected", lexStream.getRawContent());
 		}
 		BlockStmt body = (BlockStmt) parseBlock(lexStream, true);
 		return new FunctionDeclarationStmt(name.text, parameters, body);
