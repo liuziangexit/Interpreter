@@ -44,7 +44,7 @@ public class liuziangDotCom {
 						if (readStream.read(length) != 4)
 							break;
 						final int messageLength = i32d(length);
-						if (messageLength > 2048) {
+						if (messageLength > 65535) {
 							send.accept("code length too long");
 							break;
 						}
