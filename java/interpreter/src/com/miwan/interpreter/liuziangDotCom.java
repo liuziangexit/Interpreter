@@ -21,8 +21,10 @@ public class liuziangDotCom {
 			return;
 		}
 		try {
+			System.out.println("go");
 			while (true) {
 				try (Socket client = listener.accept()) {
+					System.out.println("connected");
 					InputStream readStream = client.getInputStream();
 					OutputStream writeStream = client.getOutputStream();
 
@@ -63,16 +65,21 @@ public class liuziangDotCom {
 
 						//execute code
 						final String srcAsString = new String(src, StandardCharsets.UTF_8);
-						Object executeResult;
+						boolean hasEx = false;
+						Object executeResult = null;
 						try {
 							executeResult = Interpreter.execute(srcAsString);
 						} catch (Exception ex) {
 							send.accept(ex.toString());
-							break;
+							hasEx = true;
 						}
-						//send execution result
-						send.accept(executeResult.toString());
+						if (!hasEx) {
+							//send execution result
+							send.accept(executeResult.toString());
+						}
+						System.out.println("request ok");
 					}
+					System.out.println("disconnected");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
