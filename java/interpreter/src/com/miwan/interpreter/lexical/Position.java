@@ -32,15 +32,13 @@ public class Position {
 	}
 
 	public int nextColumn() {
-		col++;
-		count++;
-		return col;
+		return nextColumn(1);
 	}
 
 	public int nextColumn(int c) {
 		col += c;
 		count += c;
-		return col;
+		return count;
 	}
 
 	public int line() {

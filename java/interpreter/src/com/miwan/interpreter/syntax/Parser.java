@@ -29,7 +29,7 @@ public class Parser {
 
 	//return Root Node
 	static public Node parse(final LexStream lexStream) {
-		return StatementParsing.parseBlock(lexStream, false);
+		return StatementParsing.parseMainFunc(lexStream);
 	}
 
 }

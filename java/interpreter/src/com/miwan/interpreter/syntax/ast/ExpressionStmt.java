@@ -22,7 +22,9 @@ public class ExpressionStmt extends Statement {
 
 	@Override
 	public Object execute(Environment env) {
-		return expr.execute(env);
+		if (expr != null)
+			return expr.execute(env);
+		return null;
 	}
 
 	@Override

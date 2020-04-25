@@ -13,7 +13,7 @@ import java.util.List;
 
 public class StatementParsing {
 
-	static public Statement parse(final LexStream lexStream) {
+	static public Statement parse(final LexStream lexStream, boolean allowNoSem) {
 		if (lexStream.current() == null)
 			return null;
 		switch (lexStream.current().kind) {
@@ -43,44 +43,58 @@ public class StatementParsing {
 			case LCurly: {
 				//i hate case without break
 				if (true)
-					return parseBlock(lexStream, true);
+					return parseBlock(lexStream);
 			}
 			break;
 		}
 		Expression expr = ExpressionParsing.parse(lexStream);
-		//allow single line expression without ';'
-		if (LexStream.test(lexStream.current(), c -> c.kind == TokenKind.Sem)) {
-			lexStream.eat();
+		Lexeme sem = lexStream.eat();
+		if (sem != null && sem.kind == TokenKind.Sem) {
+			return new ExpressionStmt(expr);
+		} else if (sem == null && allowNoSem) {
+			return expr;
+		} else {
+			throw new BadSyntaxException("statement must ends with ';'", lexStream.getRawContent());
 		}
-		return new ExpressionStmt(expr);
 	}
 
-	static public Statement parseBlock(final LexStream lexStream, boolean explicitBlock) {
-		if (explicitBlock)
-			lexStream.eat();//eat {
-
-		final BlockStmt rootBlock = new BlockStmt(new ArrayList<>(1));
+	static public Statement parseMainFunc(final LexStream lexStream) {
+		final EntranceBlock rootBlock = new EntranceBlock(new ArrayList<>(1));
 		Lexeme pos = lexStream.current();
-		//FIXME 这个地方好像不对，正常block都是以括号标志结束的，而这里的特殊情况似乎反客为主了
-		//应该确保这里只会返回BlockStmt
+		boolean firstStmt = true;
 		while (lexStream.current() != null) {
-			if (explicitBlock) {
-				if (LexStream.test(lexStream.current(), p -> p.kind == TokenKind.RCurly)) {
-					lexStream.eat();
-					break;
-				}
-			}
-			rootBlock.statements.add(StatementParsing.parse(lexStream));
+			rootBlock.statements.add(StatementParsing.parse(lexStream, firstStmt));
+			firstStmt = false;
 			if (pos == lexStream.current())
 				throw new BadSyntaxException("could not parse tokens after " + lexStream.current(), lexStream.getRawContent());
 			pos = lexStream.current();
 		}
 
-		if (!explicitBlock && rootBlock.statements.size() == 1 && rootBlock.statements.get(0) instanceof ExpressionStmt) {
-			return ((ExpressionStmt) rootBlock.statements.get(0)).expr;
+		if (rootBlock.statements.size() == 1 && !(rootBlock.statements.get(0) instanceof ExpressionStmt)) {
+			return rootBlock.statements.get(0);
 		} else {
 			return rootBlock;
 		}
+
+	}
+
+	static public BlockStmt parseBlock(final LexStream lexStream) {
+		lexStream.eat();//eat {
+
+		final BlockStmt rootBlock = new BlockStmt(new ArrayList<>());
+		Lexeme pos = lexStream.current();
+		//应该确保这里只会返回BlockStmt
+		while (!LexStream.test(lexStream.current(), p -> p.kind == TokenKind.RCurly)) {
+			rootBlock.statements.add(StatementParsing.parse(lexStream, false));
+			if (pos == lexStream.current())
+				throw new BadSyntaxException("could not parse tokens after " + lexStream.current(), lexStream.getRawContent());
+			pos = lexStream.current();
+		}
+		if (lexStream.eat() == null) {
+			throw new BadSyntaxException("bad block", lexStream.getRawContent());
+		}
+
+		return rootBlock;
 	}
 
 	static private Statement parseVarDecl(final LexStream lexStream) {
@@ -141,7 +155,7 @@ public class StatementParsing {
 				throw new BadSyntaxException("')' expected", lexStream.getRawContent());
 			}
 		}
-		BlockStmt body = (BlockStmt) parseBlock(lexStream, true);
+		BlockStmt body = parseBlock(lexStream);
 		return new FunctionDeclarationStmt(name.text, parameters, body);
 	}
 
@@ -154,11 +168,11 @@ public class StatementParsing {
 		if (!LexStream.test(lexStream.eat(), e -> e.kind == TokenKind.RParen)) {
 			throw new BadSyntaxException("bad if", lexStream.getRawContent());
 		}
-		Statement trueBranch = parse(lexStream);
+		Statement trueBranch = parse(lexStream, false);
 		Statement falseBranch = null;
 		if (LexStream.test(lexStream.current(), c -> c.kind == TokenKind.Identifier && c.text.equals("else"))) {
 			lexStream.eat();
-			falseBranch = parse(lexStream);
+			falseBranch = parse(lexStream, false);
 		}
 		return new IfStmt(cond, trueBranch, falseBranch);
 	}

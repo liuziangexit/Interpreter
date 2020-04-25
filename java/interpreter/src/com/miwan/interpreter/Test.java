@@ -105,21 +105,6 @@ public class Test {
 				throw new RuntimeException();
 			if (!(((NumberExpr) cc.rhs).value instanceof Double))
 				throw new RuntimeException();
-			// 测试^符号的右结合性
-			/*ArrayList<AstNode> a = (ArrayList<AstNode>) ShuntingYard.compile(Scanner.scan("2^2^3^4^5"));
-			if ((int) a.get(0).value != 2)
-				throw new RuntimeException();
-			if ((int) a.get(1).value != 2)
-				throw new RuntimeException();
-			if ((int) a.get(2).value != 3)
-				throw new RuntimeException();
-			if ((int) a.get(3).value != 4)
-				throw new RuntimeException();
-			if ((int) a.get(4).value != 5)
-				throw new RuntimeException();
-			for (int z = 5; z < 9; z++)
-				if (!a.get(z).value.equals("^"))
-					throw new RuntimeException();*/
 			// 测试变量标识符
 			if (!String.valueOf(Interpreter.eval("3+four*two/(1-5)^pow(2,3)", varName -> {
 				if (varName.equalsIgnoreCase("four"))
@@ -161,15 +146,6 @@ public class Test {
 			if (String.valueOf(Interpreter.eval("random()", null))
 					.equals(String.valueOf(Interpreter.eval("random()", null))))
 				throw new RuntimeException();// 若两次random结果一样则不通过，这里不通过的概率几乎没有，如果有...就再跑一遍试试
-			//测试if函数（看OperatorDefinition.java的注释，这是一个函数，不是面向过程语言里的分支关键字）
-			/*if (0 != ((Number) Interpreter.eval("if(0,1,0)", null)).intValue())
-				throw new RuntimeException();
-			if (1 != ((Number) Interpreter.eval("if(1,1,0)", null)).intValue())
-				throw new RuntimeException();
-			if (1 != ((Number) Interpreter.eval("if(-1,1,0)", null)).intValue())
-				throw new RuntimeException();
-			if (4 != ((Number) Interpreter.eval("if(2221,pow(2,2),0)", null)).intValue())
-				throw new RuntimeException();*/
 
 			// 测试隐式转型
 			if (!String.valueOf(Interpreter.eval("round(10.5)+2.8", null))

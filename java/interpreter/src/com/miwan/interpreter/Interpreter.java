@@ -46,8 +46,14 @@ public class Interpreter {
 		List<Lexeme> scan = Scanner.scan(src);
 		Node ast = Parser.parse(new LexStream(scan, src));
 		Environment environment = new Environment(id -> null);
-		ast.execute(environment);
-		return environment.retrieveReturned();
+		Object execute = ast.execute(environment);
+		if (environment.hasReturned()) {
+			return environment.retrieveReturned();
+		} else if (ast instanceof Expression && execute != null) {
+			return execute;
+		} else {
+			throw new RuntimeException("main function never returned");
+		}
 	}
 
 	@FunctionalInterface
