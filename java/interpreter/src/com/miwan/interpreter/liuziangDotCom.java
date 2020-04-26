@@ -66,16 +66,24 @@ public class liuziangDotCom {
 						//execute code
 						final String srcAsString = new String(src, StandardCharsets.UTF_8);
 						boolean hasEx = false;
-						Object executeResult = null;
-						try {
-							executeResult = Interpreter.execute(srcAsString);
-						} catch (Exception ex) {
-							send.accept(ex.toString());
-							hasEx = true;
-						}
-						if (!hasEx) {
-							//send execution result
-							send.accept(executeResult.toString());
+						Object[] executeResult = new Object[1];
+						Thread thread = new Thread(() -> {
+							Object execute;
+							try {
+								execute = Interpreter.execute(srcAsString);
+							} catch (Exception e) {
+								execute = e;
+							}
+							executeResult[0] = execute;
+						});
+						thread.start();
+						thread.join(15000);
+						if (thread.isAlive()) {
+							//timeout
+							thread.stop();
+							send.accept("程序运行超时");
+						} else {
+							send.accept(executeResult[0].toString());
 						}
 						System.out.println("request ok");
 					}
