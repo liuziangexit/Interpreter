@@ -15,7 +15,7 @@ import java.util.Collections;
 
 public class NumberExpr extends Expression {
 	public NumberExpr(Number value) {
-		this.value = value;
+		this.value = value.doubleValue();
 	}
 
 	public Number value;
