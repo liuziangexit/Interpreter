@@ -39,6 +39,8 @@ struct lexeme {
 
   lexeme(const std::string &text, token_kind kind,
          const text_position &position);
+  lexeme(const lexeme &);
+  lexeme(lexeme &&);
 };
 
 } // namespace interpreter

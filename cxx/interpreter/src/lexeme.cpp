@@ -4,6 +4,8 @@ interpreter::lexeme::lexeme(const std::string &text,
                             interpreter::token_kind kind,
                             const interpreter::text_position &position)
     : text(text), kind(kind), position(position) {}
+interpreter::lexeme::lexeme(interpreter::lexeme &&) = default;
+interpreter::lexeme::lexeme(const interpreter::lexeme &) = default;
 
 interpreter::text_position::text_position(const interpreter::text_position &) =
     default;
