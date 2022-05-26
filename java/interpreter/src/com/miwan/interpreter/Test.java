@@ -37,10 +37,10 @@ public class Test {
 		if (!(ss.cond instanceof BooleanLiteralExpr)) {
 			throw new RuntimeException();
 		}
-		if ((Integer) ss.yes.execute(null) != 1) {
+		if ((Double) ss.yes.execute(null) != 1) {
 			throw new RuntimeException();
 		}
-		if ((Integer) ss.no.execute(null) != 2) {
+		if ((Double) ss.no.execute(null) != 2) {
 			throw new RuntimeException();
 		}
 		//嵌套情形
@@ -64,7 +64,7 @@ public class Test {
 		for (int i = 0; i < 1; i++) {
 			// 基本的表达式解析测试
 			if (!String.valueOf(Interpreter.eval("-abs(5)!=(-2^2-1)-3-5?-abs(5)==(-2^2-1)-3-5:-abs(5)==(-2^2-1)-3-5?9710:9711", null))
-					.equals("9710"))
+					.equals("9710.0"))
 				throw new RuntimeException();
 			if (!String.valueOf(Interpreter.eval("2+2^3*2", null))
 					.equals("18.0"))
@@ -100,11 +100,11 @@ public class Test {
 					.equals("3.0001220703125"))
 				throw new RuntimeException();
 			// 测试数字类型
-			BinaryExpr cc = (BinaryExpr) Parser.parse(new LexStream(Scanner.scan("1+1.2"), "1+1.2"));
-			if (!(((NumberExpr) cc.lhs).value instanceof Integer))
-				throw new RuntimeException();
-			if (!(((NumberExpr) cc.rhs).value instanceof Double))
-				throw new RuntimeException();
+//			BinaryExpr cc = (BinaryExpr) Parser.parse(new LexStream(Scanner.scan("1+1.2"), "1+1.2"));
+//			if (!(((NumberExpr) cc.lhs).value instanceof Integer))
+//				throw new RuntimeException();
+//			if (!(((NumberExpr) cc.rhs).value instanceof Double))
+//				throw new RuntimeException();
 			// 测试变量标识符
 			if (!String.valueOf(Interpreter.eval("3+four*two/(1-5)^pow(2,3)", varName -> {
 				if (varName.equalsIgnoreCase("four"))
@@ -129,9 +129,9 @@ public class Test {
 			// 都是转发JavaMath库的实现，所以试一下简单的成功情形就行了，不用写那么高的覆盖率
 			if (!String.valueOf(Interpreter.eval("log(5)", null)).substring(0, 6).equals("1.6094"))
 				throw new RuntimeException();
-			if (!String.valueOf(Interpreter.eval("abs(-9710)", null)).equals("9710"))
+			if (!String.valueOf(Interpreter.eval("abs(-9710)", null)).equals("9710.0"))
 				throw new RuntimeException();
-			if (!String.valueOf(Interpreter.eval("abs(9710)", null)).equals("9710"))
+			if (!String.valueOf(Interpreter.eval("abs(9710)", null)).equals("9710.0"))
 				throw new RuntimeException();
 			if (!String.valueOf(Interpreter.eval("max(9710,9711)", null)).equals("9711.0"))
 				throw new RuntimeException();
@@ -155,7 +155,7 @@ public class Test {
 					.equals(String.valueOf(3.8d)))
 				throw new RuntimeException();
 			if (!String.valueOf(Interpreter.eval("1+2", null))
-					.equals(String.valueOf(3)))
+					.equals(String.valueOf(3.0)))
 				throw new RuntimeException();
 			//测试boolean表达式计算
 			if (!String.valueOf(Interpreter.eval("true", null))
